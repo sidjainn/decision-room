@@ -14,21 +14,25 @@
       --ink: #17213a;
       --ink-soft: #3f4a62;
       --muted: #6b7487;
-      --surface: #f7f8fa;
+      --surface: #f3f6fb;
       --paper: #ffffff;
-      --line: #d8dde7;
-      --line-strong: #adb6c7;
+      --line: #dfe5ef;
+      --line-strong: #c4cddd;
       --cobalt: #3659d9;
       --cobalt-dark: #2745b7;
       --cobalt-pale: #edf1ff;
+      --lavender: #6554c0;
+      --lavender-pale: #f0edff;
       --amber: #a75f0c;
       --amber-pale: #fff5e7;
       --teal: #14705a;
       --teal-pale: #e9f7f2;
       --red: #a1444c;
-      --shadow: 0 30px 70px rgba(27, 39, 70, 0.12);
+      --shadow: 0 34px 88px rgba(27, 39, 70, 0.15), 0 8px 24px rgba(27, 39, 70, 0.07);
+      --shadow-soft: 0 16px 42px rgba(27, 39, 70, 0.08), 0 3px 12px rgba(27, 39, 70, 0.04);
       --max: 1440px;
-      --radius: 7px;
+      --radius: 11px;
+      --radius-card: 22px;
     }
 
     * { box-sizing: border-box; }
@@ -75,11 +79,19 @@
 
     .topbar {
       display: flex;
-      min-height: 84px;
+      position: relative;
+      z-index: 20;
+      min-height: 66px;
       align-items: center;
       justify-content: space-between;
       gap: 28px;
-      border-bottom: 1px solid var(--line);
+      margin-top: 18px;
+      padding-inline: 18px;
+      border: 1px solid rgba(196, 205, 221, 0.75);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 12px 36px rgba(27, 39, 70, 0.07);
+      backdrop-filter: blur(16px);
     }
 
     .brand {
@@ -134,15 +146,16 @@
       border-radius: var(--radius);
       padding: 0 18px;
       background: var(--cobalt);
+      box-shadow: 0 9px 20px rgba(54, 89, 217, 0.2);
       color: white;
       font-weight: 700;
       text-decoration: none;
-      transition: background 160ms ease, transform 160ms ease;
+      transition: background 160ms ease, box-shadow 160ms ease, transform 160ms ease;
     }
-    .button:hover { background: var(--cobalt-dark); }
+    .button:hover { background: var(--cobalt-dark); box-shadow: 0 12px 25px rgba(54, 89, 217, 0.26); transform: translateY(-1px); }
     .button:active { transform: translateY(1px); }
     .button.small { min-height: 40px; padding-inline: 15px; font-size: 0.86rem; }
-    .button.light { border-color: rgba(255, 255, 255, 0.35); background: white; color: var(--ink); }
+    .button.light { border-color: rgba(255, 255, 255, 0.35); background: white; box-shadow: 0 12px 30px rgba(11, 22, 58, 0.2); color: var(--ink); }
     .button.light:hover { background: #eef1f6; }
 
     .text-link {
@@ -162,22 +175,23 @@
 
     .hero {
       display: grid;
-      grid-template-columns: minmax(390px, 0.82fr) minmax(560px, 1.18fr);
-      gap: clamp(48px, 6vw, 98px);
+      grid-template-columns: minmax(430px, 0.9fr) minmax(560px, 1.1fr);
+      gap: clamp(44px, 5vw, 82px);
       align-items: center;
-      min-height: calc(100vh - 85px);
+      min-height: calc(100vh - 84px);
       padding-block: 60px 76px;
     }
 
     .hero-copy { align-self: center; }
     .hero h1 {
       max-width: 700px;
-      font-size: clamp(4rem, 6.7vw, 7.25rem);
+      font-size: clamp(3.7rem, 5.3vw, 5.8rem);
       font-weight: 600;
-      line-height: 0.83;
-      letter-spacing: -0.065em;
+      line-height: 0.94;
+      letter-spacing: -0.05em;
     }
     .hero h1 span { display: block; }
+    .hero h1 span + span { margin-top: 0.08em; }
     .hero-lead {
       max-width: 590px;
       margin-top: 28px;
@@ -197,10 +211,102 @@
     .hero-ctas { display: flex; flex-wrap: wrap; align-items: center; gap: 15px 22px; margin-top: 29px; }
     .hero-note { margin-top: 13px; color: var(--muted); font-size: 0.78rem; }
 
+    .room-creator {
+      display: grid;
+      grid-template-columns: minmax(170px, 0.28fr) minmax(0, 1fr);
+      gap: clamp(28px, 5vw, 76px);
+      align-items: start;
+      padding-block: 36px 42px;
+      border-top: 1px solid rgba(196, 205, 221, 0.72);
+    }
+    .room-creator-intro h2 { font-size: clamp(2rem, 3vw, 3.2rem); letter-spacing: -0.035em; }
+    .room-creator-intro p { max-width: 260px; margin-top: 9px; color: var(--ink-soft); font-size: 0.82rem; line-height: 1.5; }
+    .create-panel {
+      display: grid;
+      grid-template-columns: minmax(150px, 0.72fr) minmax(240px, 1.05fr) minmax(340px, 1.55fr) minmax(148px, auto);
+      column-gap: 16px;
+      row-gap: 14px;
+      align-items: start;
+      padding: 22px;
+      border: 1px solid rgba(196, 205, 221, 0.72);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.95);
+      box-shadow: var(--shadow-soft);
+    }
+    .create-fields { display: contents; }
+    .create-panel label { display: grid; gap: 6px; color: var(--ink-soft); font-size: 0.7rem; font-weight: 700; }
+    .create-panel label em { color: var(--muted); font-style: normal; font-weight: 400; }
+    .create-panel input,
+    .create-panel textarea {
+      width: 100%;
+      border: 1px solid #c4ccda;
+      border-radius: var(--radius);
+      background: #fbfcff;
+      color: var(--ink);
+      transition: border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
+    }
+    .create-panel input { height: 43px; padding: 0 11px; }
+    .create-panel textarea { min-height: 68px; padding: 10px 11px; resize: vertical; line-height: 1.4; }
+    .create-panel input::placeholder,
+    .create-panel textarea::placeholder { color: #939cad; }
+    .create-panel input:focus,
+    .create-panel textarea:focus { border-color: var(--cobalt); background: white; box-shadow: 0 0 0 3px rgba(54, 89, 217, 0.1); outline: 0; }
+    .context-details { grid-column: 1 / -1; padding: 10px 12px; border-radius: 10px; background: #f7f9fd; }
+    .context-details summary { width: fit-content; color: var(--cobalt); font-size: 0.72rem; font-weight: 700; cursor: pointer; }
+    .context-fields { display: grid; grid-template-columns: 1.25fr 0.75fr; gap: 10px; margin-top: 12px; }
+    .create-actions { display: grid; gap: 7px; align-items: start; align-self: start; padding-top: 20px; }
+    .create-actions .button { min-height: 43px; padding-block: 0; white-space: nowrap; }
+    .create-actions span { color: var(--muted); font-size: 0.68rem; line-height: 1.3; text-align: center; }
+    .form-status { grid-column: 1 / -1; min-height: 17px; color: var(--red); font-size: 0.7rem; }
+    .form-status.success { color: var(--teal); }
+
+    .recent-rooms { grid-column: 2; }
+    .recent-rooms summary {
+      display: flex;
+      min-height: 48px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 0 16px;
+      border: 1px solid rgba(196, 205, 221, 0.72);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.78);
+      color: var(--ink);
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      list-style: none;
+    }
+    .recent-rooms summary::-webkit-details-marker { display: none; }
+    .recent-rooms summary span { color: var(--muted); font-size: 0.69rem; font-weight: 500; }
+    .recent-rooms summary::after { color: var(--cobalt); content: "+"; font-size: 1.1rem; }
+    .recent-rooms[open] summary { border-radius: 14px 14px 0 0; background: white; }
+    .recent-rooms[open] summary::after { content: "–"; }
+    .recent-room-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 12px; border: 1px solid rgba(196, 205, 221, 0.72); border-top: 0; background: #f7f9fd; }
+    .recent-room {
+      display: grid;
+      min-height: 78px;
+      gap: 7px;
+      border: 1px solid rgba(196, 205, 221, 0.7);
+      border-radius: 14px;
+      padding: 14px 15px;
+      background: white;
+      box-shadow: 0 8px 24px rgba(27, 39, 70, 0.055);
+      color: var(--ink);
+      text-align: left;
+      cursor: pointer;
+      transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+    }
+    .recent-room:hover { border-color: #aebcf1; background: var(--cobalt-pale); box-shadow: 0 12px 28px rgba(27, 39, 70, 0.09); transform: translateY(-2px); }
+    .recent-room strong { font-size: 0.82rem; }
+    .recent-room span { display: flex; justify-content: space-between; gap: 12px; color: var(--muted); font-size: 0.66rem; }
+    .recent-room-status { min-height: 16px; padding: 0 12px 10px; border: 1px solid rgba(196, 205, 221, 0.72); border-top: 0; border-radius: 0 0 14px 14px; background: #f7f9fd; color: var(--teal); font-size: 0.68rem; }
+
     .decision-room {
       position: relative;
       overflow: hidden;
-      border: 1px solid var(--line-strong);
+      border: 1px solid rgba(173, 182, 199, 0.72);
+      border-radius: var(--radius-card);
       background: var(--paper);
       box-shadow: var(--shadow);
     }
@@ -211,9 +317,9 @@
       align-items: center;
       justify-content: space-between;
       gap: 20px;
-      padding: 10px 16px;
+      padding: 11px 18px;
       border-bottom: 1px solid var(--line);
-      background: #fafbfc;
+      background: #f9fbff;
     }
     .room-title { display: flex; align-items: baseline; gap: 9px; font-size: 0.75rem; font-weight: 700; }
     .room-title span { color: var(--muted); font-weight: 500; }
@@ -227,8 +333,7 @@
       grid-template-columns: 1fr auto;
       gap: 20px;
       align-items: start;
-      padding: 20px 20px 17px;
-      border-bottom: 1px solid var(--line);
+      padding: 22px 22px 19px;
     }
     .room-heading p { margin-bottom: 6px; color: var(--muted); font-size: 0.7rem; font-weight: 600; }
     .room-heading h2 { max-width: 610px; font-size: clamp(1.55rem, 2.3vw, 2.2rem); line-height: 1; letter-spacing: -0.03em; }
@@ -255,13 +360,55 @@
     .room-context {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 1px;
-      background: var(--line);
-      border-bottom: 1px solid var(--line);
+      gap: 10px;
+      padding: 0 18px;
     }
-    .context-cell { min-height: 61px; padding: 12px 16px; background: var(--paper); }
+    .context-cell { min-height: 65px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; background: #f8fafd; }
+    .context-cell:first-child { border-color: #d8e0ff; background: #f3f5ff; }
+    .context-cell:last-child { border-color: #ebddc8; background: #fff9f0; }
     .context-cell span { display: block; margin-bottom: 4px; color: var(--muted); font-size: 0.65rem; }
     .context-cell strong { font-size: 0.76rem; line-height: 1.32; }
+
+    .listening-panel {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin: 18px;
+      padding: 15px 16px;
+      border: 1px solid #dce4ff;
+      border-radius: 15px;
+      background: var(--cobalt-pale);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    }
+    .listening-copy { display: grid; gap: 3px; }
+    .listening-copy strong { font-size: 0.78rem; }
+    .listening-copy span { color: var(--ink-soft); font-size: 0.68rem; }
+    .waveform { display: flex; width: 86px; height: 34px; flex: 0 0 auto; align-items: center; justify-content: center; gap: 4px; }
+    .waveform i {
+      width: 3px;
+      height: 10px;
+      border-radius: 3px;
+      background: var(--cobalt);
+      animation: listening-wave 1.05s ease-in-out infinite;
+    }
+    .waveform i:nth-child(2), .waveform i:nth-child(8) { height: 18px; animation-delay: -0.8s; }
+    .waveform i:nth-child(3), .waveform i:nth-child(7) { height: 27px; animation-delay: -0.6s; }
+    .waveform i:nth-child(4), .waveform i:nth-child(6) { height: 21px; animation-delay: -0.4s; }
+    .waveform i:nth-child(5) { height: 32px; animation-delay: -0.2s; }
+    .waveform i:nth-child(9) { height: 13px; animation-delay: -0.7s; }
+
+    .alignment-map { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 14px 18px 18px; border-top: 1px solid var(--line); background: #f8fafd; }
+    .alignment-group { min-height: 228px; padding: 17px 17px 10px; border: 1px solid #cde7de; border-radius: 14px; background: #f3fbf8; box-shadow: 0 6px 18px rgba(27, 39, 70, 0.04); }
+    .alignment-group.not-aligned { border-color: #ead8ba; background: #fff9ef; }
+    .alignment-group h3 { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; font-size: 0.88rem; }
+    .alignment-group h3 i { width: 9px; height: 9px; border-radius: 50%; background: var(--teal); }
+    .alignment-group.not-aligned h3 i { background: var(--amber); }
+    .alignment-item { min-height: 55px; padding: 13px 0; border-top: 1px solid var(--line); color: var(--ink-soft); font-size: 0.76rem; line-height: 1.42; }
+
+    @keyframes listening-wave {
+      0%, 100% { transform: scaleY(0.42); opacity: 0.55; }
+      50% { transform: scaleY(1); opacity: 1; }
+    }
 
     .capacity { padding: 14px 18px 13px; border-bottom: 1px solid var(--line); }
     .capacity-copy { display: flex; justify-content: space-between; gap: 20px; margin-bottom: 8px; color: var(--ink-soft); font-size: 0.68rem; }
@@ -355,10 +502,43 @@
     .stage-button strong { display: block; margin-top: 2px; color: var(--ink); font-size: 0.68rem; }
     .stage-button[aria-pressed="true"] { box-shadow: inset 0 3px var(--cobalt); background: var(--cobalt-pale); color: var(--cobalt); }
 
-    .section { padding-block: clamp(68px, 8vw, 112px); border-top: 1px solid var(--line); }
-    .section-intro { display: grid; grid-template-columns: 5fr 7fr; gap: clamp(40px, 7vw, 120px); align-items: start; }
-    .section-copy { max-width: 650px; color: var(--ink-soft); font-size: 1.05rem; line-height: 1.65; }
-    .section-copy strong { color: var(--ink); }
+    .section { padding-block: clamp(68px, 8vw, 112px); border-top: 1px solid rgba(196, 205, 221, 0.58); }
+    .how-heading {
+      display: grid;
+      grid-template-columns: 4fr 8fr;
+      gap: clamp(34px, 7vw, 110px);
+      align-items: end;
+      margin-bottom: 30px;
+    }
+    .how-heading h2 { font-size: clamp(2.5rem, 4vw, 4.2rem); }
+    .how-heading p { max-width: 560px; color: var(--ink-soft); font-size: 1rem; line-height: 1.55; }
+    .how-steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      overflow: hidden;
+      border: 1px solid rgba(196, 205, 221, 0.72);
+      border-radius: 22px;
+      background: white;
+      box-shadow: var(--shadow-soft);
+    }
+    .how-step { min-height: 210px; padding: 28px; background: white; }
+    .how-step + .how-step { border-left: 1px solid var(--line); }
+    .how-step:nth-child(2) { background: #f5f6ff; }
+    .how-step:nth-child(3) { background: #f0faf6; }
+    .how-number {
+      display: grid;
+      width: 34px;
+      height: 34px;
+      place-items: center;
+      border-radius: 10px;
+      background: var(--cobalt-pale);
+      color: var(--cobalt);
+      font-size: 0.76rem;
+      font-weight: 800;
+    }
+    .how-step:last-child .how-number { background: var(--teal-pale); color: var(--teal); }
+    .how-step h3 { margin-top: 28px; font-size: 1.25rem; }
+    .how-step p { max-width: 330px; margin-top: 10px; color: var(--ink-soft); font-size: 0.86rem; line-height: 1.55; }
 
     .missing-layer { margin-top: 70px; border-block: 1px solid var(--line-strong); }
     .layer-row {
@@ -375,89 +555,35 @@
     .layer-row strong { font-family: "IBM Plex Sans Condensed", "Arial Narrow", sans-serif; font-size: 1.18rem; }
     .layer-row p { color: var(--ink-soft); font-size: 0.82rem; line-height: 1.45; }
 
-    .trace { position: relative; display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 64px; }
-    .trace::before { position: absolute; top: 15px; right: 9%; left: 9%; height: 1px; background: var(--line-strong); content: ""; }
-    .trace-step { position: relative; padding: 0 24px; }
-    .trace-step:first-child { padding-left: 0; }
-    .trace-step:last-child { padding-right: 0; }
-    .trace-index {
-      position: relative;
-      z-index: 1;
-      display: grid;
-      width: 31px;
-      height: 31px;
-      place-items: center;
-      margin-bottom: 23px;
-      border: 1px solid var(--line-strong);
-      border-radius: 50%;
-      background: var(--surface);
-      color: var(--muted);
-      font-size: 0.69rem;
-      font-weight: 700;
-    }
-    .trace-step:last-child .trace-index { border-color: var(--teal); background: var(--teal); color: white; }
-    .trace-step h3 { margin-bottom: 9px; }
-    .trace-step p { color: var(--ink-soft); font-size: 0.83rem; line-height: 1.55; }
-
-    .walkthrough { background: var(--ink); color: white; }
-    .walkthrough .section { border-top: 0; }
-    .walkthrough .section-copy { color: #c7cddd; }
-    .walkthrough-layout { display: grid; grid-template-columns: 4fr 8fr; gap: clamp(45px, 7vw, 120px); align-items: start; }
-    .walkthrough-copy { position: sticky; top: 40px; }
-    .walkthrough-copy p { max-width: 470px; margin-top: 25px; color: #c7cddd; font-size: 1rem; line-height: 1.65; }
-    .walkthrough-copy .text-link { margin-top: 22px; color: #9eb0ff; }
-
-    .big-receipt { border: 1px solid #536079; background: white; color: var(--ink); box-shadow: 16px 16px 0 rgba(255, 255, 255, 0.07); }
-    .receipt-head { display: flex; justify-content: space-between; gap: 20px; padding: 18px 21px; border-bottom: 1px solid var(--line); }
-    .receipt-head strong { font-size: 0.85rem; }
-    .receipt-head span { color: var(--teal); font-size: 0.73rem; font-weight: 700; }
-    .receipt-decision { padding: 25px 21px 26px; border-bottom: 1px solid var(--line); }
-    .receipt-decision span, .receipt-block > span { display: block; margin-bottom: 7px; color: var(--muted); font-size: 0.66rem; }
-    .receipt-decision h3 { max-width: 700px; font-size: clamp(1.85rem, 3.8vw, 3.2rem); letter-spacing: -0.035em; }
-    .receipt-grid { display: grid; grid-template-columns: 1fr 1fr; }
-    .receipt-block { min-height: 135px; padding: 20px 21px; border-bottom: 1px solid var(--line); }
-    .receipt-block:nth-child(odd) { border-right: 1px solid var(--line); }
-    .receipt-block p { color: var(--ink-soft); font-size: 0.82rem; line-height: 1.5; }
-    .receipt-block strong { font-size: 0.85rem; }
-    .receipt-confirmations { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 12px; }
-    .confirmation { padding: 5px 7px; border: 1px solid #a8cec3; background: var(--teal-pale); color: var(--teal); font-size: 0.65rem; font-weight: 700; }
-
-    .use-case-grid { display: grid; grid-template-columns: 1.4fr 0.6fr; gap: 1px; margin-top: 72px; border: 1px solid var(--line-strong); background: var(--line-strong); }
+    .use-case-grid { display: grid; grid-template-columns: 1.4fr 0.6fr; gap: 14px; }
     .use-case-primary, .use-case-secondary { background: var(--paper); }
-    .use-case-primary { min-height: 360px; padding: clamp(28px, 4.5vw, 68px); }
-    .use-case-secondary { display: grid; grid-template-rows: 1fr 1fr; gap: 1px; background: var(--line-strong); }
-    .use-case-secondary article { padding: clamp(24px, 3.5vw, 42px); background: var(--paper); }
+    .use-case-primary { min-height: 360px; padding: clamp(28px, 4.5vw, 68px); border: 1px solid #294ac7; border-radius: 22px; background: var(--cobalt); box-shadow: 0 24px 54px rgba(54, 89, 217, 0.22); color: white; }
+    .use-case-secondary { display: grid; grid-template-rows: 1fr 1fr; gap: 14px; background: transparent; }
+    .use-case-secondary article { padding: clamp(24px, 3.5vw, 42px); border: 1px solid rgba(196, 205, 221, 0.72); border-radius: 17px; background: var(--paper); box-shadow: 0 10px 28px rgba(27, 39, 70, 0.065); }
+    .use-case-secondary article:first-child { border-color: #d9d2ff; background: var(--lavender-pale); }
+    .use-case-secondary article:last-child { border-color: #c9e7dc; background: var(--teal-pale); }
     .case-label { display: block; margin-bottom: 28px; color: var(--cobalt); font-size: 0.72rem; font-weight: 700; }
+    .use-case-primary .case-label { color: #dce4ff; }
+    .use-case-secondary article:first-child .case-label { color: var(--lavender); }
+    .use-case-secondary article:last-child .case-label { color: var(--teal); }
     .use-case-primary h3 { max-width: 720px; font-size: clamp(2.4rem, 5vw, 5.2rem); letter-spacing: -0.045em; }
     .use-case-secondary h3 { font-size: clamp(1.6rem, 3vw, 2.4rem); }
     .case-copy { max-width: 670px; margin-top: 22px; color: var(--ink-soft); font-size: 0.9rem; line-height: 1.6; }
-    .case-outcome { margin-top: 42px; padding-top: 17px; border-top: 1px solid var(--line); color: var(--ink); font-size: 0.76rem; font-weight: 700; }
+    .case-outcome { margin-top: 42px; padding-top: 17px; border-top: 1px solid rgba(255, 255, 255, 0.34); color: white; font-size: 0.76rem; font-weight: 700; }
 
-    .trust-grid { display: grid; grid-template-columns: 5fr 7fr; gap: clamp(45px, 8vw, 130px); align-items: start; }
-    .trust-statement { max-width: 560px; margin-top: 25px; color: var(--ink-soft); font-size: 1rem; line-height: 1.62; }
-    .trust-list { border-top: 1px solid var(--line-strong); }
-    .trust-item { display: grid; grid-template-columns: 0.42fr 1fr; gap: 25px; padding: 21px 0; border-bottom: 1px solid var(--line); }
-    .trust-item strong { font-size: 0.8rem; }
-    .trust-item p { color: var(--ink-soft); font-size: 0.83rem; line-height: 1.5; }
-
-    .comparison-line {
-      display: grid;
-      grid-template-columns: 1fr 42px 1fr;
-      gap: 20px;
-      align-items: center;
-      margin-top: 65px;
-      padding: 34px 0;
-      border-block: 1px solid var(--line-strong);
+    .insight-section { padding-block: clamp(88px, 10vw, 150px); }
+    .insight-copy {
+      max-width: 1180px;
+      font-family: "IBM Plex Sans Condensed", "Arial Narrow", sans-serif;
+      font-size: clamp(2rem, 3.6vw, 3.8rem);
+      font-weight: 500;
+      line-height: 1.1;
+      letter-spacing: -0.025em;
+      text-wrap: pretty;
     }
-    .comparison-side span { display: block; margin-bottom: 9px; color: var(--muted); font-size: 0.68rem; }
-    .comparison-side strong { display: block; font-family: "IBM Plex Sans Condensed", "Arial Narrow", sans-serif; font-size: clamp(1.5rem, 3vw, 2.6rem); line-height: 1.02; }
-    .comparison-side:last-child strong { color: var(--cobalt); }
-    .comparison-mark { display: grid; width: 42px; height: 42px; place-items: center; border: 1px solid var(--line-strong); border-radius: 50%; color: var(--muted); }
-    .simple-comparison { grid-template-columns: 1fr; }
-    .simple-comparison .comparison-side { display: grid; grid-template-columns: 0.7fr 1.3fr; gap: 40px; align-items: baseline; }
-    .simple-comparison .comparison-side strong { color: var(--cobalt); }
+    .insight-emphasis { color: var(--cobalt); }
 
-    .final-cta { padding-block: clamp(85px, 13vw, 180px); background: var(--cobalt); color: white; }
+    .final-cta { padding-block: clamp(85px, 13vw, 180px); border-radius: 34px 34px 0 0; background: var(--cobalt); color: white; box-shadow: 0 -18px 50px rgba(27, 39, 70, 0.09); }
     .final-inner { display: grid; grid-template-columns: 7fr 5fr; gap: 80px; align-items: end; }
     .final-cta h2 { max-width: 850px; font-size: clamp(3.8rem, 8vw, 8.7rem); }
     .final-copy { max-width: 430px; justify-self: end; }
@@ -481,34 +607,37 @@
     @media (max-width: 1120px) {
       .hero { grid-template-columns: 1fr; min-height: auto; }
       .hero-copy { max-width: 810px; }
-      .hero h1 { font-size: clamp(4.2rem, 11vw, 7.5rem); }
+      .hero h1 { font-size: clamp(4rem, 10vw, 6.8rem); }
       .decision-room { width: min(100%, 880px); }
-      .section-intro, .trust-grid { grid-template-columns: 1fr; }
-      .section-copy { max-width: 760px; }
-      .walkthrough-layout { grid-template-columns: 1fr; }
-      .walkthrough-copy { position: static; }
+      .room-creator { grid-template-columns: 1fr; gap: 18px; }
+      .room-creator-intro p { max-width: 520px; }
+      .create-panel { grid-template-columns: 1fr 1fr; padding: 20px; }
+      .create-fields { display: grid; grid-template-columns: 0.75fr 1.25fr; grid-column: 1 / -1; gap: 16px; }
+      .create-panel > label, .context-details, .create-actions, .form-status { grid-column: 1 / -1; }
+      .create-actions { display: flex; align-items: center; justify-content: flex-start; gap: 14px; padding-top: 0; }
+      .create-actions span { text-align: left; }
+      .recent-rooms { grid-column: 1; }
       .final-inner { grid-template-columns: 1fr; gap: 40px; align-items: start; }
       .final-copy { justify-self: start; }
     }
 
     @media (max-width: 800px) {
       .shell { width: min(100% - 36px, var(--max)); }
-      .topbar { min-height: 72px; }
+      .topbar { min-height: 62px; margin-top: 12px; border-radius: 16px; }
       .brand-type, .nav-links { display: none; }
       .hero { padding-block: 56px 70px; }
       .hero h1 { font-size: clamp(3.7rem, 16vw, 6.7rem); }
-      .trace { grid-template-columns: 1fr; gap: 0; margin-top: 55px; }
-      .trace::before { top: 15px; bottom: 25px; left: 15px; width: 1px; height: auto; }
-      .trace-step { min-height: 150px; padding: 0 0 28px 56px; }
-      .trace-step:first-child { padding-left: 56px; }
-      .trace-step:last-child { min-height: auto; padding-right: 0; }
-      .trace-index { position: absolute; left: 0; }
+      .create-panel { grid-template-columns: 1fr 1fr; }
+      .create-fields { display: grid; grid-template-columns: 0.75fr 1.25fr; grid-column: 1 / -1; gap: 12px; }
+      .create-panel > label, .context-details, .create-actions, .form-status { grid-column: 1 / -1; }
+      .context-fields { grid-template-columns: 1fr; }
+      .create-actions { display: flex; align-items: center; }
+      .how-heading { grid-template-columns: 1fr; gap: 12px; }
+      .how-steps { grid-template-columns: 1fr; border-radius: 18px; }
+      .how-step { min-height: auto; padding: 25px; }
+      .how-step + .how-step { border-top: 1px solid var(--line); border-left: 0; }
       .use-case-grid { grid-template-columns: 1fr; }
       .use-case-primary { min-height: 390px; }
-      .trust-item { grid-template-columns: 1fr; gap: 7px; }
-      .comparison-line { grid-template-columns: 1fr; }
-      .simple-comparison .comparison-side { grid-template-columns: 1fr; gap: 12px; }
-      .comparison-mark { transform: rotate(90deg); }
       .final-cta h2 { font-size: clamp(3.6rem, 15vw, 7rem); }
     }
 
@@ -521,9 +650,16 @@
       .hero-lead { margin-top: 24px; }
       .hero-body { font-size: 0.94rem; }
       .hero-ctas { align-items: flex-start; flex-direction: column; gap: 6px; }
+      .create-panel { grid-template-columns: 1fr; padding: 18px; }
+      .create-fields { grid-template-columns: 1fr; grid-column: 1; }
+      .create-actions { align-items: flex-start; flex-direction: column; }
+      .recent-room-list { grid-template-columns: 1fr; }
       .room-heading { grid-template-columns: 1fr; }
       .avatars { padding-left: 8px; }
       .room-context { grid-template-columns: 1fr; }
+      .alignment-map { grid-template-columns: 1fr; }
+      .alignment-group { min-height: auto; }
+      .alignment-group + .alignment-group { border: 1px solid #ead8ba; }
       .request-head { display: none; }
       .request-row { grid-template-columns: minmax(0, 1fr) auto; gap: 10px; padding-block: 12px; }
       .request-meta { grid-column: 1; padding-left: 17px; }
@@ -532,9 +668,7 @@
       .stage-button { padding-inline: 8px; }
       .stage-button strong { font-size: 0.62rem; }
       .layer-row { grid-template-columns: 1fr; gap: 7px; padding-block: 18px; }
-      .receipt-grid { grid-template-columns: 1fr; }
-      .receipt-block:nth-child(odd) { border-right: 0; }
-      .use-case-primary { min-height: 0; }
+      .use-case-primary { min-height: 0; border-radius: 18px; }
       .use-case-secondary { grid-template-rows: auto auto; }
       footer { align-items: flex-start; flex-direction: column; justify-content: center; }
     }
@@ -559,9 +693,9 @@
         <div class="nav-links">
           <a href="#how">How it works</a>
           <a href="#use-cases">Examples</a>
-          <a href="#trust">Trust</a>
+          <a href="#why-ansel">Why Ansel</a>
         </div>
-        <a class="button small" href="#pilot">Request a pilot</a>
+        <a class="button small" href="#create-room">Create a room</a>
       </div>
     </nav>
   </header>
@@ -570,28 +704,24 @@
     <section class="hero shell" id="top">
       <div class="hero-copy">
         <h1>
-          <span>Three urgent requests.</span>
-          <span>One team.</span>
-          <span>Make the trade-off.</span>
+          <span>5 leaders.</span>
+          <span>3 urgent requests.</span>
+          <span>1 available team.</span>
         </h1>
-        <p class="hero-body">Ansel shows the options, the real disagreement, and the final call—live.</p>
-        <div class="hero-ctas">
-          <a class="button" href="#pilot">Request a pilot</a>
-          <button class="text-link" id="watch-decision" type="button">See it happen</button>
-        </div>
-        <p class="hero-note">For Chiefs of Staff and cross-functional leaders.</p>
+        <p class="hero-body">Ansel finds the disagreement blocking the decision and helps everyone leave with an answer they can execute.</p>
+        <div class="hero-ctas"><a class="button" href="#create-room">Create a room</a></div>
       </div>
 
       <div>
-        <div class="decision-room" id="decision-room" data-step="1" aria-labelledby="room-question">
+        <div class="decision-room" id="decision-room" aria-labelledby="room-question">
           <div class="room-bar">
-            <div class="room-title">Weekly trade-off <span id="room-time">Monday, 10:04</span></div>
-            <div class="live-state" id="live-state"><i aria-hidden="true"></i><span>Decision open</span></div>
+            <div class="room-title">Weekly leadership room <span>Live</span></div>
+            <div class="live-state"><i aria-hidden="true"></i><span>Ansel is listening</span></div>
           </div>
           <div class="room-heading">
             <div>
-              <p>Decision question</p>
-              <h2 id="room-question">What gets the launch team this week?</h2>
+              <p>Trying to align on</p>
+              <h2 id="room-question">Which priority gets the shared team this week?</h2>
             </div>
             <div class="avatars" aria-label="Five leaders in this room">
               <span class="avatar" title="Maya, Chief of Staff">MC</span>
@@ -602,125 +732,99 @@
             </div>
           </div>
           <div class="room-context">
-            <div class="context-cell"><span>Goal</span><strong>Protect customers and keep commitments</strong></div>
-            <div class="context-cell"><span>Rule</span><strong>Fit 6 team-days. Owners approve.</strong></div>
+            <div class="context-cell"><span>Goal</span><strong>Protect renewals and keep the Q4 launch on track</strong></div>
+            <div class="context-cell"><span>Rule</span><strong>One team, 6 days. Name what moves.</strong></div>
           </div>
-          <div class="capacity">
-            <div class="capacity-copy"><strong>Weekly capacity</strong><span id="capacity-copy">11 days requested / 6 available</span></div>
-            <div class="capacity-track" aria-hidden="true"><span class="capacity-fill"></span><span class="capacity-reserve"></span></div>
+          <div class="listening-panel">
+            <span class="waveform" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
+            <div class="listening-copy"><strong>Ansel is listening</strong><span>The alignment map updates as people talk.</span></div>
           </div>
-          <div class="request-table">
-            <div class="request-head" aria-hidden="true"><span>Request</span><span>Scope</span><span>Current state</span></div>
-            <div class="request-row" id="request-1" data-state="open">
-              <div class="request-name"><i aria-hidden="true"></i><span>Billing retry fix</span></div>
-              <span class="request-meta">4 days</span>
-              <span class="request-decision">Requested</span>
-            </div>
-            <div class="request-row" id="request-2" data-state="open">
-              <div class="request-name"><i aria-hidden="true"></i><span>Enterprise SSO unblock</span></div>
-              <span class="request-meta">4 days</span>
-              <span class="request-decision">Requested</span>
-            </div>
-            <div class="request-row" id="request-3" data-state="open">
-              <div class="request-name"><i aria-hidden="true"></i><span>Partner launch</span></div>
-              <span class="request-meta">3 days</span>
-              <span class="request-decision">Requested</span>
-            </div>
+          <div class="alignment-map">
+            <section class="alignment-group" aria-labelledby="aligned-heading">
+              <h3 id="aligned-heading"><i aria-hidden="true"></i>Aligned</h3>
+              <p class="alignment-item">Protect existing customer commitments first</p>
+              <p class="alignment-item">Keep one day free for incident cover</p>
+            </section>
+            <section class="alignment-group not-aligned" aria-labelledby="not-aligned-heading">
+              <h3 id="not-aligned-heading"><i aria-hidden="true"></i>Not aligned</h3>
+              <p class="alignment-item">Launch the partner now or move to 17 September</p>
+              <p class="alignment-item">Full SSO rollout or a two-day auth spike</p>
+            </section>
           </div>
-          <div class="tension">
-            <span class="tension-symbol" id="tension-symbol" aria-hidden="true">!</span>
-            <div><strong id="tension-title">11 days of work. 6 available.</strong><p id="tension-copy">Every team is asking for full scope.</p></div>
-          </div>
-          <div class="receipt">
-            <div><p class="receipt-label">Decision</p><strong id="receipt-copy">No workable proposal yet</strong></div>
-            <span class="receipt-state" id="receipt-state">Not ready</span>
-          </div>
-          <div class="stage-controls" role="group" aria-label="Decision stages">
-            <button class="stage-button" type="button" aria-pressed="true" data-stage="1"><span>10:04</span><strong>Competing asks</strong></button>
-            <button class="stage-button" type="button" aria-pressed="false" data-stage="2"><span>10:17</span><strong>The hinge</strong></button>
-            <button class="stage-button" type="button" aria-pressed="false" data-stage="3"><span>10:31</span><strong>Confirmed</strong></button>
-          </div>
-          <p class="sr-only" id="decision-announcement" aria-live="polite"></p>
         </div>
       </div>
+    </section>
+
+    <section class="section shell insight-section" id="why-ansel">
+      <p class="insight-copy">Every leadership team knows the decision that somehow comes back next week. The facts are on the table, but credible leaders want incompatible things—and beneath the reasonable arguments sit defended assumptions, a little ego, and the discomfort of being the one who gives something up. <span class="insight-emphasis">Ansel makes that real disagreement visible, so the room can stop circling and make the call.</span></p>
     </section>
 
     <section class="section shell" id="how">
-      <div class="section-intro">
-        <h2>See the conflict.<br>Find the hinge.<br>Make the call.</h2>
-        <p class="section-copy">Ansel keeps one shared picture of the decision while the room moves.</p>
+      <div class="how-heading">
+        <h2>How it works</h2>
+        <p>Close the trade-off in one meeting—or leave knowing exactly why it cannot close yet.</p>
       </div>
-      <div class="trace" aria-label="Ansel decision process">
-        <article class="trace-step"><span class="trace-index">1</span><h3>Frame</h3><p>One question. Clear constraints.</p></article>
-        <article class="trace-step"><span class="trace-index">2</span><h3>Focus</h3><p>The one difference changing the answer.</p></article>
-        <article class="trace-step"><span class="trace-index">3</span><h3>Commit</h3><p>Scope, owners, and when to revisit.</p></article>
+      <div class="how-steps" aria-label="How Ansel works">
+        <article class="how-step"><span class="how-number">1</span><h3>Bring one stuck decision</h3><p>Name the question, the goal, the constraints, and who must own the answer.</p></article>
+        <article class="how-step"><span class="how-number">2</span><h3>Make the real difference visible</h3><p>Ansel separates shared facts from the assumption or trade-off keeping the room apart.</p></article>
+        <article class="how-step"><span class="how-number">3</span><h3>Close it—or name what is missing</h3><p>Leave with an approved decision, or a clear non-decision with an owner and next step.</p></article>
       </div>
     </section>
 
-    <div class="walkthrough" id="walkthrough">
-      <section class="section shell">
-        <div class="walkthrough-layout">
-          <div class="walkthrough-copy">
-            <h2>A decision.<br>Not a summary.</h2>
-            <p>What happens now, what moves, and who owns it.</p>
-            <button class="text-link" id="replay-decision" type="button">Replay the trade-off</button>
-          </div>
-          <article class="big-receipt" aria-label="Example confirmed decision receipt">
-            <header class="receipt-head"><strong>Ansel decision receipt</strong><span>Confirmed Monday, 10:31</span></header>
-            <div class="receipt-decision"><span>Decision</span><h3>Fix retries. Run the SSO auth spike. Move the partner launch.</h3></div>
-            <div class="receipt-grid">
-              <div class="receipt-block"><span>Now</span><p><strong>3 days</strong> retry fix<br><strong>2 days</strong> auth spike<br><strong>1 day</strong> incident cover</p></div>
-              <div class="receipt-block"><span>Moved</span><p>Full SSO rollout<br>Partner launch: <strong>17 Sep</strong></p></div>
-              <div class="receipt-block"><span>Owners</span><p>Dev: retry fix<br>Jon: auth spike<br>Leena: partner reset</p></div>
-              <div class="receipt-block"><span>Reopen if</span><p>The partner dependency clears before Wednesday noon.</p><div class="receipt-confirmations"><span class="confirmation">5 owners confirmed</span></div></div>
-            </div>
-          </article>
+    <section class="room-creator shell" id="create-room" aria-labelledby="create-room-heading">
+      <div class="room-creator-intro">
+        <h2 id="create-room-heading">Create a room</h2>
+        <p>Bring one decision and the people who need to own the answer.</p>
+      </div>
+      <form class="create-panel" novalidate>
+        <div class="create-fields">
+          <label><span>Your name</span><input id="host-name" name="hostName" placeholder="Maya" autocomplete="name" required></label>
+          <label><span>Room name</span><input id="room-name" name="roomName" placeholder="Weekly leadership trade-off" required></label>
         </div>
-      </section>
-    </div>
+        <label><span>What are you trying to decide? <em>Optional</em></span><input id="room-topic" name="topic" placeholder="Which priority gets the shared team this week?"></label>
+        <div class="create-actions">
+          <button class="button" type="submit">Create room</button>
+          <span>No account or setup.</span>
+        </div>
+        <details class="context-details">
+          <summary>Add an OKR or decision criteria</summary>
+          <div class="context-fields">
+            <label><span>Reference or OKR <em>Optional</em></span><textarea name="reference" placeholder="Protect enterprise renewals while keeping the Q4 launch on track."></textarea></label>
+            <label><span>Criteria <em>Optional</em></span><input name="criteria" placeholder="Customer impact, revenue risk, effort, reversibility"></label>
+          </div>
+        </details>
+        <p class="form-status" id="create-status" aria-live="polite"></p>
+      </form>
+      <details class="recent-rooms">
+        <summary>Recent rooms <span>Pick up where you left off</span></summary>
+        <div class="recent-room-list" id="recent-room-list">
+          <button class="recent-room" type="button" data-room="Weekly leadership trade-off"><strong>Weekly leadership trade-off</strong><span><small>5 people · Today</small><small>LEAD-7K2</small></span></button>
+          <button class="recent-room" type="button" data-room="Q4 hiring plan"><strong>Q4 hiring plan</strong><span><small>4 people · Yesterday</small><small>HIRE-2Q4</small></span></button>
+        </div>
+        <p class="recent-room-status" id="recent-room-status" aria-live="polite"></p>
+      </details>
+    </section>
 
     <section class="section shell" id="use-cases">
-      <div class="section-intro">
-        <h2>Same clarity.<br>Different decision.</h2>
-        <p class="section-copy">Use Ansel when the answer crosses teams.</p>
-      </div>
       <div class="use-case-grid">
         <article class="use-case-primary">
-          <span class="case-label">Weekly trade-off</span>
-          <h3>What gets the team this week?</h3>
-          <p class="case-outcome">Choose the work. Name what moves.</p>
+          <span class="case-label">Weekly leadership room</span>
+          <h3>Which company priority gets the shared team this week?</h3>
+          <p class="case-outcome">Turn competing functional requests into one accountable plan.</p>
         </article>
         <div class="use-case-secondary">
-          <article><span class="case-label">Hiring</span><h3>Hire now or wait?</h3><p class="case-copy">Make the risk and reopen trigger explicit.</p></article>
-          <article><span class="case-label">Client scope</span><h3>What belongs in phase one?</h3><p class="case-copy">Agree what is in—and what is not.</p></article>
+          <article><span class="case-label">Quarterly hiring plan</span><h3>Which two roles do we open this quarter?</h3><p class="case-copy">Balance growth, coverage, and runway before the board meeting.</p></article>
+          <article><span class="case-label">Strategic client exception</span><h3>What do we promise without breaking the plan?</h3><p class="case-copy">Make the exception, cost, owner, and trade-off explicit.</p></article>
         </div>
       </div>
     </section>
 
-    <section class="section shell" id="trust">
-      <div class="trust-grid">
-        <div>
-          <h2>People make the call.</h2>
-          <p class="trust-statement">Ansel makes the decision easier to see.</p>
-        </div>
-        <div class="trust-list">
-          <div class="trust-item"><strong>Visible</strong><p>Everyone sees what Ansel heard.</p></div>
-          <div class="trust-item"><strong>Correctable</strong><p>Anyone can fix the interpretation.</p></div>
-          <div class="trust-item"><strong>Confirmed</strong><p>Nothing is decided until owners approve.</p></div>
-        </div>
-      </div>
-      <div class="comparison-line simple-comparison">
-        <div class="comparison-side"><span>Ansel is not meeting notes or backlog software.</span><strong>It is the live decision between discussion and execution.</strong></div>
-      </div>
-    </section>
-
-    <section class="final-cta" id="pilot">
+    <section class="final-cta" id="start">
       <div class="shell final-inner">
         <h2>Bring one decision.</h2>
         <div class="final-copy">
-          <p>We’ll set up the first room with you.</p>
-          <button class="button light" type="button" id="pilot-button">Request a pilot</button>
-          <p class="review-note" id="pilot-note" aria-live="polite">Preview only — no request will be sent.</p>
+          <p>Start with the people who need to own the answer.</p>
+          <a class="button light" href="#create-room">Create a room</a>
         </div>
       </div>
     </section>
@@ -732,124 +836,76 @@
   </footer>
 
   <script>
-    const stages = {
-      1: {
-        time: "Monday, 10:04",
-        live: "Decision open",
-        capacity: "11 days requested / 6 available",
-        rows: [
-          ["Billing retry fix", "4 days", "Requested", "open"],
-          ["Enterprise SSO unblock", "4 days", "Requested", "open"],
-          ["Partner launch", "3 days", "Requested", "open"]
-        ],
-        tensionSymbol: "!",
-        tensionTitle: "11 days of work. 6 available.",
-        tensionCopy: "Every team is asking for full scope.",
-        receipt: "No workable proposal yet",
-        receiptState: "Not ready",
-        announcement: "Stage 1 of 3. Three requests exceed the available team capacity."
-      },
-      2: {
-        time: "Monday, 10:17",
-        live: "Difference found",
-        capacity: "8 days scoped / 6 available",
-        rows: [
-          ["Billing retry fix", "3 days", "Likely in", "included"],
-          ["Enterprise SSO auth spike", "2 days", "Likely in", "included"],
-          ["Partner launch", "3 days", "Still disputed", "open"]
-        ],
-        tensionSymbol: "!",
-        tensionTitle: "One hinge: the partner dependency is not ready",
-        tensionCopy: "Keep the date or avoid rework?",
-        receipt: "One blocking assumption remains",
-        receiptState: "Proposal",
-        announcement: "Stage 2 of 3. The unresolved difference is the partner launch dependency."
-      },
-      3: {
-        time: "Monday, 10:31",
-        live: "Decision confirmed",
-        capacity: "5 committed + 1 held for incident cover",
-        rows: [
-          ["Billing retry fix", "3 days", "Include now", "included"],
-          ["Enterprise SSO auth spike", "2 days", "Include now", "included"],
-          ["Partner launch", "17 Sep", "Moved", "deferred"]
-        ],
-        tensionSymbol: "✓",
-        tensionTitle: "Trade-off accepted",
-        tensionCopy: "Fix retries. Run the auth spike. Move the launch.",
-        receipt: "Now, later, owners and reopen trigger recorded",
-        receiptState: "Confirmed × 5",
-        announcement: "Stage 3 of 3. Decision confirmed with owners and a revisit trigger."
-      }
-    };
+    const defaultRecentRooms = [
+      { title: "Weekly leadership trade-off", meta: "5 people · Today", code: "LEAD-7K2" },
+      { title: "Q4 hiring plan", meta: "4 people · Yesterday", code: "HIRE-2Q4" }
+    ];
+    const roomStorageKey = "ansel-preview-recent-rooms";
+    let recentRooms = defaultRecentRooms;
 
-    const room = document.getElementById("decision-room");
-    const stageButtons = [...document.querySelectorAll(".stage-button")];
-    const rowElements = [1, 2, 3].map(index => document.getElementById(`request-${index}`));
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-    let sequenceTimers = [];
-
-    function setStage(stageNumber, announce = true) {
-      const stage = stages[stageNumber];
-      room.dataset.step = String(stageNumber);
-      document.getElementById("room-time").textContent = stage.time;
-      const liveState = document.getElementById("live-state");
-      liveState.querySelector("span").textContent = stage.live;
-      liveState.classList.toggle("confirmed", stageNumber === 3);
-      document.getElementById("capacity-copy").textContent = stage.capacity;
-
-      rowElements.forEach((row, index) => {
-        const [name, scope, decision, state] = stage.rows[index];
-        row.querySelector(".request-name span").textContent = name;
-        row.querySelector(".request-meta").textContent = scope;
-        row.querySelector(".request-decision").textContent = decision;
-        row.dataset.state = state;
-      });
-
-      document.getElementById("tension-symbol").textContent = stage.tensionSymbol;
-      document.getElementById("tension-title").textContent = stage.tensionTitle;
-      document.getElementById("tension-copy").textContent = stage.tensionCopy;
-      document.getElementById("receipt-copy").textContent = stage.receipt;
-      document.getElementById("receipt-state").textContent = stage.receiptState;
-
-      stageButtons.forEach(button => {
-        button.setAttribute("aria-pressed", String(Number(button.dataset.stage) === stageNumber));
-      });
-      if (announce) document.getElementById("decision-announcement").textContent = stage.announcement;
+    try {
+      const savedRooms = JSON.parse(localStorage.getItem(roomStorageKey) || "null");
+      if (Array.isArray(savedRooms) && savedRooms.length) recentRooms = savedRooms;
+    } catch (_error) {
+      recentRooms = defaultRecentRooms;
     }
 
-    function stopSequence() {
-      sequenceTimers.forEach(clearTimeout);
-      sequenceTimers = [];
+    function renderRecentRooms() {
+      const list = document.getElementById("recent-room-list");
+      list.replaceChildren();
+      recentRooms.slice(0, 4).forEach(roomData => {
+        const button = document.createElement("button");
+        const title = document.createElement("strong");
+        const metaRow = document.createElement("span");
+        const meta = document.createElement("small");
+        const code = document.createElement("small");
+        button.className = "recent-room";
+        button.type = "button";
+        button.dataset.room = roomData.title;
+        title.textContent = roomData.title;
+        meta.textContent = roomData.meta;
+        code.textContent = roomData.code;
+        metaRow.append(meta, code);
+        button.append(title, metaRow);
+        list.append(button);
+      });
     }
 
-    function playSequence(scrollToRoom = false) {
-      stopSequence();
-      if (scrollToRoom) room.scrollIntoView({ behavior: reduceMotion.matches ? "auto" : "smooth", block: "center" });
-      if (reduceMotion.matches) {
-        setStage(3);
+    function makeRoomCode(title) {
+      const prefix = title.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 4) || "ROOM";
+      return `${prefix}-${String(Date.now()).slice(-3)}`;
+    }
+
+    document.getElementById("create-room").addEventListener("submit", event => {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const name = form.elements.hostName.value.trim();
+      const title = form.elements.roomName.value.trim();
+      const status = document.getElementById("create-status");
+
+      if (!name || !title) {
+        status.className = "form-status";
+        status.textContent = "Add your name and a room name.";
         return;
       }
-      setStage(1);
-      sequenceTimers.push(setTimeout(() => setStage(2), 1500));
-      sequenceTimers.push(setTimeout(() => setStage(3), 3300));
-    }
 
-    stageButtons.forEach(button => {
-      button.addEventListener("click", () => {
-        stopSequence();
-        setStage(Number(button.dataset.stage));
-      });
+      const newRoom = { title, meta: `${name} · Just now`, code: makeRoomCode(title) };
+      recentRooms = [newRoom, ...recentRooms.filter(roomData => roomData.title !== title)].slice(0, 4);
+      localStorage.setItem(roomStorageKey, JSON.stringify(recentRooms));
+      renderRecentRooms();
+      status.className = "form-status success";
+      status.textContent = `${title} is ready in your recent rooms.`;
+      form.reset();
     });
 
-    document.getElementById("watch-decision").addEventListener("click", () => playSequence(true));
-    document.getElementById("replay-decision").addEventListener("click", () => playSequence(true));
-    document.getElementById("pilot-button").addEventListener("click", () => {
-      document.getElementById("pilot-note").textContent = "Pilot request flow would open here in the production page.";
+    document.getElementById("recent-room-list").addEventListener("click", event => {
+      const roomButton = event.target.closest(".recent-room");
+      if (!roomButton) return;
+      document.getElementById("recent-room-status").textContent = `${roomButton.dataset.room} would open here in the product.`;
     });
 
-    if (reduceMotion.matches) setStage(3, false);
-    else playSequence(false);
+    renderRecentRooms();
+
   </script>
 </body>
 </html>

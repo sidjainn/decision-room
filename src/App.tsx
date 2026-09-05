@@ -178,12 +178,22 @@ function Landing({ connected }: { connected: boolean }) {
 
   return (
     <main className="landing-page">
-      <nav className="landing-nav">
-        <Brand />
-        <span>Your decision facilitator</span>
-      </nav>
+      <header className="landing-nav landing-inner">
+        <a className="landing-brand-link" href="#top" aria-label="Ansel home">
+          <Brand />
+          <span>Live decision system</span>
+        </a>
+        <nav className="landing-nav-actions" aria-label="Landing page navigation">
+          <div className="landing-nav-links">
+            <a href="#how">How it works</a>
+            <a href="#examples">Examples</a>
+            <a href="#why-ansel">Why Ansel</a>
+          </div>
+          <a className="primary-button landing-nav-cta" href="#create-room">Create a room</a>
+        </nav>
+      </header>
 
-      <section className="landing-hero">
+      <section className="landing-hero landing-inner" id="top">
         <div className="landing-copy">
           <h1>
             <span>5 leaders.</span>
@@ -194,143 +204,241 @@ function Landing({ connected }: { connected: boolean }) {
             Ansel finds the disagreement blocking the decision and helps everyone
             leave with an answer they can execute.
           </p>
-
-          <div className="create-room-panel">
-            <div className="create-fields">
-              <label>
-                <span>Your name</span>
-                <input
-                  value={hostName}
-                  onChange={event => setHostName(event.target.value)}
-                  placeholder="Maya"
-                  autoComplete="name"
-                />
-              </label>
-              <label>
-                <span>Room name</span>
-                <input
-                  value={title}
-                  onChange={event => setTitle(event.target.value)}
-                  placeholder="Team offsite"
-                />
-              </label>
-            </div>
-            <label>
-              <span>What are you trying to align on? <em>Optional</em></span>
-              <input
-                value={topic}
-                onChange={event => setTopic(event.target.value)}
-                placeholder="Where and when should we meet?"
-              />
-            </label>
-
-            <button
-              className="context-toggle"
-              type="button"
-              onClick={() => setShowContext(value => !value)}
-              aria-expanded={showContext}
-            >
-              {showContext ? 'Hide reference context' : 'Add OKRs or decision criteria'}
-            </button>
-
-            {showContext && (
-              <div className="optional-context">
-                <label>
-                  <span>Reference or OKR <em>Optional</em></span>
-                  <textarea
-                    value={reference}
-                    onChange={event => setReference(event.target.value)}
-                    placeholder="Keep travel below ₹40,000 and maximise in-person time."
-                    rows={3}
-                  />
-                </label>
-                <label>
-                  <span>Criteria <em>Optional, comma or line separated</em></span>
-                  <input
-                    value={criteria}
-                    onChange={event => setCriteria(event.target.value)}
-                    placeholder="Cost, accessibility, time together"
-                  />
-                </label>
-              </div>
-            )}
-
-            <div className="create-action">
-              <button
-                className="primary-button"
-                disabled={!connected || Boolean(pendingCode)}
-                onClick={() => void create()}
-              >
-                {pendingCode ? 'Opening room…' : 'Create room'}
-              </button>
-              <span>No account or setup workflow.</span>
-            </div>
-            {error && <p className="inline-error">{error}</p>}
-          </div>
+          <a className="primary-button hero-create-button" href="#create-room">Create a room</a>
         </div>
 
         <SimulatedRoom />
       </section>
 
-      {recentRooms.length > 0 && (
-        <section className="recent-rooms">
-          <div>
-            <h2>Your recent rooms</h2>
-            <p>Every room has its own people, conversation and live alignment map.</p>
+      <section className="landing-section landing-insight landing-inner" id="why-ansel">
+        <p>
+          Every leadership team knows the decision that somehow comes back next week.
+          The facts are on the table, but credible leaders want incompatible things—and
+          beneath the reasonable arguments sit defended assumptions, a little ego, and
+          the discomfort of being the one who gives something up.{' '}
+          <span className="insight-emphasis">
+            Ansel makes that real disagreement visible, so the room can stop circling
+            and make the call.
+          </span>
+        </p>
+      </section>
+
+      <section className="landing-section landing-inner" id="how">
+        <div className="how-heading">
+          <h2>How it works</h2>
+          <p>Close the trade-off in one meeting—or leave knowing exactly why it cannot close yet.</p>
+        </div>
+        <div className="how-steps" aria-label="How Ansel works">
+          <article>
+            <span>1</span>
+            <h3>Bring one stuck decision</h3>
+            <p>Name the question, the goal, the constraints, and who must own the answer.</p>
+          </article>
+          <article>
+            <span>2</span>
+            <h3>Make the real difference visible</h3>
+            <p>Ansel separates shared facts from the assumption or trade-off keeping the room apart.</p>
+          </article>
+          <article>
+            <span>3</span>
+            <h3>Close it—or name what is missing</h3>
+            <p>Leave with an approved decision, or a clear non-decision with an owner and next step.</p>
+          </article>
+        </div>
+      </section>
+
+      <section className="landing-creator landing-inner" id="create-room" aria-labelledby="create-room-heading">
+        <div className="creator-intro">
+          <h2 id="create-room-heading">Create a room</h2>
+          <p>Bring one decision and the people who need to own the answer.</p>
+        </div>
+        <form
+          className="create-room-panel"
+          onSubmit={event => {
+            event.preventDefault();
+            void create();
+          }}
+        >
+          <div className="create-fields">
+            <label>
+              <span>Your name</span>
+              <input
+                value={hostName}
+                onChange={event => setHostName(event.target.value)}
+                placeholder="Maya"
+                autoComplete="name"
+              />
+            </label>
+            <label>
+              <span>Room name</span>
+              <input
+                value={title}
+                onChange={event => setTitle(event.target.value)}
+                placeholder="Weekly leadership trade-off"
+              />
+            </label>
           </div>
+          <label className="decision-field">
+            <span>What are you trying to decide? <em>Optional</em></span>
+            <input
+              value={topic}
+              onChange={event => setTopic(event.target.value)}
+              placeholder="Which priority gets the shared team this week?"
+            />
+          </label>
+          <div className="create-action">
+            <button
+              className="primary-button"
+              type="submit"
+              disabled={!connected || Boolean(pendingCode)}
+            >
+              {pendingCode ? 'Opening room…' : 'Create room'}
+            </button>
+            <span>No account or setup.</span>
+          </div>
+
+          <button
+            className="context-toggle"
+            type="button"
+            onClick={() => setShowContext(value => !value)}
+            aria-expanded={showContext}
+          >
+            {showContext ? 'Hide reference context' : 'Add an OKR or decision criteria'}
+          </button>
+
+          {showContext && (
+            <div className="optional-context">
+              <label>
+                <span>Reference or OKR <em>Optional</em></span>
+                <textarea
+                  value={reference}
+                  onChange={event => setReference(event.target.value)}
+                  placeholder="Protect enterprise renewals while keeping the Q4 launch on track."
+                  rows={3}
+                />
+              </label>
+              <label>
+                <span>Criteria <em>Optional, comma or line separated</em></span>
+                <input
+                  value={criteria}
+                  onChange={event => setCriteria(event.target.value)}
+                  placeholder="Customer impact, revenue risk, effort, reversibility"
+                />
+              </label>
+            </div>
+          )}
+          {error && <p className="inline-error">{error}</p>}
+        </form>
+
+        <details className="landing-recent">
+          <summary>
+            <strong>Recent rooms</strong>
+            <span>Pick up where you left off</span>
+            <i aria-hidden="true">+</i>
+          </summary>
           <div className="recent-room-list">
-            {recentRooms.map(room => (
-              <button key={String(room.id)} onClick={() => navigate(`/room/${room.code}`)}>
-                <span>{room.title}</span>
-                <small>{room.code}</small>
-              </button>
-            ))}
+            {recentRooms.length > 0 ? (
+              recentRooms.map(room => (
+                <button key={String(room.id)} type="button" onClick={() => navigate(`/room/${room.code}`)}>
+                  <span>{room.title}</span>
+                  <small>{room.code}</small>
+                </button>
+              ))
+            ) : (
+              <p className="recent-empty">Your rooms will appear here.</p>
+            )}
           </div>
-        </section>
-      )}
+        </details>
+      </section>
+
+      <section className="landing-section landing-inner" id="examples">
+        <div className="use-case-grid">
+          <article className="use-case-primary">
+            <span>Weekly leadership room</span>
+            <h3>Which company priority gets the shared team this week?</h3>
+            <p>Turn competing functional requests into one accountable plan.</p>
+          </article>
+          <div className="use-case-secondary">
+            <article>
+              <span>Quarterly hiring plan</span>
+              <h3>Which two roles do we open this quarter?</h3>
+              <p>Balance growth, coverage, and runway before the board meeting.</p>
+            </article>
+            <article>
+              <span>Strategic client exception</span>
+              <h3>What do we promise without breaking the plan?</h3>
+              <p>Make the exception, cost, owner, and trade-off explicit.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section className="landing-final-cta">
+        <div className="landing-inner">
+          <h2>Bring one decision.</h2>
+          <div>
+            <p>Start with the people who need to own the answer.</p>
+            <a className="primary-button light-button" href="#create-room">Create a room</a>
+          </div>
+        </div>
+      </section>
+
+      <footer className="landing-footer landing-inner">
+        <Brand />
+        <span>See the trade-off. Make the call.</span>
+      </footer>
     </main>
   );
 }
 
 function SimulatedRoom() {
   return (
-    <aside className="simulated-room" aria-label="Simulated room example">
-      <div className="simulation-label"><span /> Ansel in a simulated live room</div>
+    <aside className="simulated-room" aria-label="Simulated weekly leadership room">
+      <div className="simulation-bar">
+        <strong>Weekly leadership room <span>Live</span></strong>
+        <span className="simulation-status"><i /> Ansel is listening</span>
+      </div>
       <header>
         <div>
-          <p>Team offsite</p>
-          <strong>Where and when should we meet?</strong>
+          <p>Trying to align on</p>
+          <h2>Which priority gets the shared team this week?</h2>
         </div>
-        <div className="demo-members" aria-label="Three people in the example room">
-          <Avatar name="Maya" />
-          <Avatar name="Dev" />
-          <Avatar name="Leena" />
+        <div className="demo-members" aria-label="Five leaders in the example room">
+          <Avatar name="Maya Chen" />
+          <Avatar name="Dev Ellis" />
+          <Avatar name="Leena Shah" />
+          <Avatar name="Ana Cruz" />
+          <Avatar name="Jon Park" />
         </div>
       </header>
 
+      <div className="simulation-context">
+        <div><span>Goal</span><strong>Protect renewals and keep the Q4 launch on track</strong></div>
+        <div><span>Rule</span><strong>One team, 6 days. Name what moves.</strong></div>
+      </div>
+
       <div className="simulation-listening">
-        <VoiceOrb state="listening" />
+        <span className="landing-wave" aria-hidden="true">
+          <i /><i /><i /><i /><i /><i /><i /><i /><i />
+        </span>
         <div>
           <strong>Ansel is listening</strong>
-          <span>“Friday gives us more time together, but flights are expensive…”</span>
+          <span>The alignment map updates as people talk.</span>
         </div>
       </div>
 
       <div className="simulation-map">
         <section className="alignment-column">
           <h3><span /> Aligned</h3>
-          <p>Meet in person, not remotely</p>
-          <p>Keep the trip within the travel budget</p>
+          <p>Protect existing customer commitments first</p>
+          <p>Keep one day free for incident cover</p>
         </section>
         <section className="difference-column">
-          <h3><span /> Still different</h3>
-          <p>Friday in person or Tuesday remote</p>
+          <h3><span /> Not aligned</h3>
+          <p>Launch the partner now or move to 17 September</p>
+          <p>Full SSO rollout or a two-day auth spike</p>
         </section>
       </div>
-      <footer>
-        <span className="mini-wave"><i /><i /><i /><i /><i /></span>
-        Ansel reshapes the map as the conversation moves.
-      </footer>
     </aside>
   );
 }
@@ -577,7 +685,7 @@ function ConversationRoom({ data, member }: { data: RoomData; member?: Participa
       </header>
 
       <section className="room-focus">
-        <p>Today’s conversation</p>
+        <p>Trying to align on</p>
         <h1>{room.decisionQuestion}</h1>
         {(room.objective || data.criteria.length > 0) && (
           <details className="room-reference">
@@ -624,8 +732,8 @@ function ConversationRoom({ data, member }: { data: RoomData; member?: Participa
         />
         <PointColumn
           kind="difference"
-          title="Still different"
-          subtitle="The distinctions that still matter"
+          title="Not aligned"
+          subtitle="Decision points the room still needs to resolve"
           points={differences}
         />
       </section>
