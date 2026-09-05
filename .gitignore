@@ -1,0 +1,14 @@
+node_modules
+dist
+spacetimedb/dist
+*.log
+*.tsbuildinfo
+.playwright-cli/
+
+.env
+.env.local
+.env.*.local
+
+.DS_Store
+
+spacetime.local.json

@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: ansel-decision-room
+    runtime: node
+    plan: free
+    buildCommand: npm ci && npm run build:public
+    startCommand: npm start
+    healthCheckPath: /api/smallest/status
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: SMALLEST_API_KEY
+        sync: false
