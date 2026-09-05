@@ -23,6 +23,69 @@ type RoomMapRequest = {
   differences?: string[];
 };
 
+type RoomMap = {
+  agreements: string[];
+  differences: string[];
+};
+
+type ReasoningProvider = 'smallest' | 'openai';
+
+type GatewayConfig = {
+  smallestApiKey?: string;
+  openAiApiKey?: string;
+  reasoningProvider: ReasoningProvider;
+};
+
+const roomMapInstructions =
+  'You maintain a neutral live map of a group conversation. Update the main points of alignment and the important unresolved differences. Merge duplicates, use plain language, never invent consensus, and keep at most four concise points on each side.';
+
+const roomMapSchema = {
+  type: 'object',
+  additionalProperties: false,
+  properties: {
+    agreements: {
+      type: 'array',
+      maxItems: 4,
+      items: { type: 'string' },
+    },
+    differences: {
+      type: 'array',
+      maxItems: 4,
+      items: { type: 'string' },
+    },
+  },
+  required: ['agreements', 'differences'],
+} as const;
+
+function parseRoomMap(value: unknown): RoomMap {
+  if (!value || typeof value !== 'object') {
+    throw new Error('The reasoning provider returned an invalid room map');
+  }
+  const candidate = value as { agreements?: unknown; differences?: unknown };
+  const readList = (items: unknown): string[] => {
+    if (!Array.isArray(items)) return [];
+    return items
+      .filter((item): item is string => typeof item === 'string')
+      .map(item => item.trim())
+      .filter(Boolean)
+      .slice(0, 4);
+  };
+  return {
+    agreements: readList(candidate.agreements),
+    differences: readList(candidate.differences),
+  };
+}
+
+function outputText(body: {
+  output_text?: string;
+  output?: Array<{ content?: Array<{ type?: string; text?: string }> }>;
+}): string | undefined {
+  return body.output_text ?? body.output
+    ?.flatMap(item => item.content ?? [])
+    .find(content => content.type === 'output_text')
+    ?.text;
+}
+
 async function readJson(request: IncomingMessage): Promise<unknown> {
   const chunks: Uint8Array[] = [];
   for await (const chunk of request) {
@@ -57,27 +120,47 @@ function isSameOrigin(request: IncomingMessage): boolean {
   }
 }
 
-function smallestGateway(apiKey: string | undefined): Plugin {
+function smallestGateway(config: GatewayConfig): Plugin {
+  const { smallestApiKey, openAiApiKey, reasoningProvider } = config;
   const installHttp = (middlewares: Connect.Server) => {
     middlewares.use('/api/smallest/status', (request, response) => {
       if (request.method !== 'GET') {
         sendJson(response, 405, { error: 'Method not allowed' });
         return;
       }
-      sendJson(response, 200, { configured: Boolean(apiKey) });
+      sendJson(response, 200, { configured: Boolean(smallestApiKey) });
     });
 
-    middlewares.use('/api/smallest/organize', async (request, response) => {
+    middlewares.use('/api/reasoning/status', (request, response) => {
+      if (request.method !== 'GET') {
+        sendJson(response, 405, { error: 'Method not allowed' });
+        return;
+      }
+      sendJson(response, 200, {
+        provider: reasoningProvider,
+        model: reasoningProvider === 'openai' ? 'gpt-5.6-luna' : 'electron',
+        effort: reasoningProvider === 'openai' ? 'medium' : undefined,
+        configured: reasoningProvider === 'openai'
+          ? Boolean(openAiApiKey)
+          : Boolean(smallestApiKey),
+      });
+    });
+
+    middlewares.use('/api/reasoning/organize', async (request, response) => {
       if (request.method !== 'POST') {
         sendJson(response, 405, { error: 'Method not allowed' });
         return;
       }
-      if (!apiKey) {
+      if (reasoningProvider === 'smallest' && !smallestApiKey) {
         sendJson(response, 503, { error: 'Smallest.ai is not configured' });
         return;
       }
+      if (reasoningProvider === 'openai' && !openAiApiKey) {
+        sendJson(response, 503, { error: 'OpenAI reasoning is not configured' });
+        return;
+      }
       if (!isSameOrigin(request)) {
-        sendJson(response, 403, { error: 'Cross-origin voice requests are not allowed' });
+        sendJson(response, 403, { error: 'Cross-origin reasoning requests are not allowed' });
         return;
       }
 
@@ -89,13 +172,54 @@ function smallestGateway(apiKey: string | undefined): Plugin {
           return;
         }
 
+        if (reasoningProvider === 'openai') {
+          const providerResponse = await fetch('https://api.openai.com/v1/responses', {
+            method: 'POST',
+            signal,
+            headers: {
+              Authorization: `Bearer ${openAiApiKey}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              model: 'gpt-5.6-luna',
+              reasoning: { effort: 'medium' },
+              instructions: roomMapInstructions,
+              input: JSON.stringify(input),
+              text: {
+                format: {
+                  type: 'json_schema',
+                  name: 'room_map',
+                  strict: true,
+                  schema: roomMapSchema,
+                },
+              },
+              store: false,
+            }),
+          });
+          const providerBody = (await providerResponse.json()) as {
+            error?: { message?: string };
+            output_text?: string;
+            output?: Array<{ content?: Array<{ type?: string; text?: string }> }>;
+          };
+          if (!providerResponse.ok) {
+            sendJson(response, providerResponse.status, {
+              error: providerBody.error?.message ?? 'OpenAI reasoning failed',
+            });
+            return;
+          }
+          const rawMap = outputText(providerBody);
+          if (!rawMap) throw new Error('GPT-5.6 Luna returned no room map');
+          sendJson(response, 200, parseRoomMap(JSON.parse(rawMap) as unknown));
+          return;
+        }
+
         const providerResponse = await fetch(
           'https://api.smallest.ai/waves/v1/chat/completions',
           {
             method: 'POST',
             signal,
             headers: {
-              Authorization: `Bearer ${apiKey}`,
+              Authorization: `Bearer ${smallestApiKey}`,
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
@@ -104,40 +228,21 @@ function smallestGateway(apiKey: string | undefined): Plugin {
               messages: [
                 {
                   role: 'system',
-                  content:
-                    'You maintain a neutral live map of a group conversation. Update the main points of alignment and the important unresolved differences. Merge duplicates, use plain language, never invent consensus, and keep at most four concise points on each side. Always call update_room_map exactly once.',
+                  content: `${roomMapInstructions} Always call update_room_map exactly once.`,
                 },
                 {
                   role: 'user',
                   content: JSON.stringify(input),
                 },
               ],
-              tools: [
-                {
-                  type: 'function',
-                  function: {
-                    name: 'update_room_map',
-                    description: 'Replace the visible agreement and difference lists.',
-                    parameters: {
-                      type: 'object',
-                      additionalProperties: false,
-                      properties: {
-                        agreements: {
-                          type: 'array',
-                          maxItems: 4,
-                          items: { type: 'string' },
-                        },
-                        differences: {
-                          type: 'array',
-                          maxItems: 4,
-                          items: { type: 'string' },
-                        },
-                      },
-                      required: ['agreements', 'differences'],
-                    },
-                  },
+              tools: [{
+                type: 'function',
+                function: {
+                  name: 'update_room_map',
+                  description: 'Replace the visible agreement and difference lists.',
+                  parameters: roomMapSchema,
                 },
-              ],
+              }],
               tool_choice: {
                 type: 'function',
                 function: { name: 'update_room_map' },
@@ -162,7 +267,7 @@ function smallestGateway(apiKey: string | undefined): Plugin {
         const rawArguments =
           providerBody.choices?.[0]?.message?.tool_calls?.[0]?.function?.arguments;
         if (!rawArguments) throw new Error('Electron returned no room-map tool call');
-        sendJson(response, 200, JSON.parse(rawArguments) as unknown);
+        sendJson(response, 200, parseRoomMap(JSON.parse(rawArguments) as unknown));
       } catch (error) {
         sendJson(response, 500, {
           error: error instanceof Error ? error.message : 'Room map update failed',
@@ -189,7 +294,7 @@ function smallestGateway(apiKey: string | undefined): Plugin {
         return;
       }
       localServer.handleUpgrade(request, socket, head, browserSocket => {
-        if (!apiKey) {
+        if (!smallestApiKey) {
           browserSocket.send(JSON.stringify({ type: 'error', message: 'Smallest.ai is not configured' }));
           browserSocket.close(1011, 'Provider not configured');
           return;
@@ -197,7 +302,7 @@ function smallestGateway(apiKey: string | undefined): Plugin {
 
         const upstream = new UpstreamSocket(
           upstreamUrl,
-          { headers: { Authorization: `Bearer ${apiKey}` } }
+          { headers: { Authorization: `Bearer ${smallestApiKey}` } }
         );
         const pending: Array<{ data: RawData; binary: boolean }> = [];
 
@@ -276,7 +381,13 @@ export default defineConfig(({ mode }) => {
     },
     plugins: [
       react(),
-      smallestGateway(env.SMALLEST_API_KEY),
+      smallestGateway({
+        smallestApiKey: env.SMALLEST_API_KEY,
+        openAiApiKey: env.OPENAI_API_KEY,
+        reasoningProvider: env.REASONING_PROVIDER?.toLowerCase() === 'openai'
+          ? 'openai'
+          : 'smallest',
+      }),
     ],
   };
 });

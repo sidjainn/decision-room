@@ -48,8 +48,8 @@ export interface SmallestRoomContext {
 
 /**
  * One provider profile assembled from replaceable, provider-neutral adapters.
- * Pulse owns the authoritative transcript, Electron owns the silent room map,
- * and Hydra owns conversational timing, barge-in, and spoken responses.
+ * Pulse owns the authoritative transcript, a selectable silent reasoner owns
+ * the room map, and Hydra owns conversational timing, barge-in, and speech.
  */
 export class SmallestRealtimeProfile {
   readonly meetingAudio: MeetingAudioAdapter;
@@ -60,7 +60,7 @@ export class SmallestRealtimeProfile {
   constructor(context: SmallestRoomContext) {
     this.meetingAudio = new BrowserMeetingAudioAdapter();
     this.speechInput = new SmallestPulseAdapter();
-    this.reasoning = new SmallestElectronAdapter();
+    this.reasoning = new RoomMapReasoningAdapter();
     this.realtimeVoice = new SmallestHydraAdapter(context);
   }
 }
@@ -219,7 +219,7 @@ class SmallestPulseAdapter implements SpeechInputAdapter {
   }
 }
 
-class SmallestElectronAdapter implements ReasoningAdapter {
+class RoomMapReasoningAdapter implements ReasoningAdapter {
   private abort?: AbortController;
   private agreements?: string[];
   private differences?: string[];
@@ -227,7 +227,7 @@ class SmallestElectronAdapter implements ReasoningAdapter {
   async *run(input: ReasoningInput): AsyncIterable<AgentEvent> {
     const abort = new AbortController();
     this.abort = abort;
-    const response = await fetch('/api/smallest/organize', {
+    const response = await fetch('/api/reasoning/organize', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       signal: abort.signal,
@@ -246,7 +246,7 @@ class SmallestElectronAdapter implements ReasoningAdapter {
       }),
     });
     const body = (await response.json()) as RoomMapResponse;
-    if (!response.ok) throw new Error(body.error || 'Smallest.ai could not update the room map.');
+    if (!response.ok) throw new Error(body.error || 'The reasoner could not update the room map.');
 
     this.agreements = stringArray(body.agreements);
     this.differences = stringArray(body.differences);

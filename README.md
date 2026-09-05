@@ -33,7 +33,18 @@ Add your key to `.env.local` and restart Vite:
 SMALLEST_API_KEY=your_key_here
 ```
 
-The API key has no `VITE_` prefix and is only read by the local server gateway; it is never sent to browser code. Room audio is streamed to the active voice and transcription sessions and is not stored by this app. Only the host starts the room microphone in this MVP.
+To use OpenAI reasoning while keeping Smallest.ai Pulse and Hydra for
+transcription and speech, add these two lines and restart Vite:
+
+```dotenv
+REASONING_PROVIDER=openai
+OPENAI_API_KEY=your_openai_key_here
+```
+
+This selects `gpt-5.6-luna` with medium reasoning effort for room-map updates.
+If `REASONING_PROVIDER` is absent, Electron remains the fallback.
+
+The API keys have no `VITE_` prefix and are only read by the local server gateway; they are never sent to browser code. Room audio is streamed to the active voice and transcription sessions and is not stored by this app. Any joined participant can start the room microphone.
 
 The gateway is registered by Vite for local development and preview. A production deployment must run the same long-lived HTTP/WebSocket server; a static-only Vite host is not sufficient.
 
@@ -55,8 +66,10 @@ running. Use a persistent container host for a long-lived deployment.
 
 For a free deployment that does not depend on the local machine, connect this
 repository to Render and create a Blueprint from `render.yaml`. Choose the Free
-service plan and enter `SMALLEST_API_KEY` when Render prompts for the secret.
-Render then runs the same HTTP and WebSocket gateway at its `onrender.com` URL.
+service plan and enter `SMALLEST_API_KEY` and `OPENAI_API_KEY` when Render
+prompts for the secrets. Render then runs the same HTTP and WebSocket gateway at
+its `onrender.com` URL. Hosting can remain free, while provider API usage is
+billed separately by Smallest.ai and OpenAI.
 
 ## Useful commands
 

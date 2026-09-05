@@ -11,3 +11,7 @@ services:
         value: "22"
       - key: SMALLEST_API_KEY
         sync: false
+      - key: REASONING_PROVIDER
+        value: openai
+      - key: OPENAI_API_KEY
+        sync: false
