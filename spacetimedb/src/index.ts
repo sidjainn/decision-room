@@ -924,13 +924,11 @@ export const replaceDiscussionPoints = spacetimedb.reducer(
     differences: t.array(t.string()),
   },
   (ctx, { roomId, agreements, differences }) => {
-    const actor = requireRoomActor(ctx, roomId);
-    if (actor.currentRoom.template_key !== 'conversation') {
+    const currentRoom = requireRoom(ctx, roomId);
+    if (currentRoom.template_key !== 'conversation') {
       throw new SenderError('Discussion points belong to conversation rooms');
     }
-    if (!actor.currentRoom.facilitator_identity.equals(ctx.sender)) {
-      throw new SenderError('Only the room host may update the live discussion map');
-    }
+    requireParticipant(ctx, roomId);
     if (agreements.length > 8 || differences.length > 8) {
       throw new SenderError('Keep the room map to eight points per side');
     }
@@ -1452,11 +1450,8 @@ export const appendConversationEvent = spacetimedb.reducer(
   { roomId: t.u64(), speakerLabel: t.string(), text: t.string(), isFinal: t.bool() },
   (ctx, { roomId, speakerLabel, text, isFinal }) => {
     const actor = requireRoomActor(ctx, roomId);
-    if (
-      actor.currentRoom.template_key === 'conversation' &&
-      !actor.currentRoom.facilitator_identity.equals(ctx.sender)
-    ) {
-      throw new SenderError('Only the room host may publish the live transcript');
+    if (actor.currentRoom.template_key === 'conversation' && !actor.member) {
+      throw new SenderError('Join this room before publishing the live transcript');
     }
     let sequence = 1n;
     for (const event of ctx.db.conversation_event.room_id.filter(roomId)) {
@@ -1486,11 +1481,8 @@ export const setAiState = spacetimedb.reducer(
   { roomId: t.u64(), state: t.string(), detail: t.string() },
   (ctx, { roomId, state, detail }) => {
     const actor = requireRoomActor(ctx, roomId);
-    if (
-      actor.currentRoom.template_key === 'conversation' &&
-      !actor.currentRoom.facilitator_identity.equals(ctx.sender)
-    ) {
-      throw new SenderError('Only the room host may update the voice facilitator');
+    if (actor.currentRoom.template_key === 'conversation' && !actor.member) {
+      throw new SenderError('Join this room before updating the voice facilitator');
     }
     const validState = expectOneOf(state, AI_STATES, 'AI state');
     const existing = ctx.db.ai_state.room_id.find(roomId);

@@ -21,7 +21,7 @@ All three requests matter. They cannot all be fully delivered this sprint. The r
 Prepare this 5–10 minutes before presenting:
 
 1. Put the Ansel room on one laptop connected to the main display.
-2. Place the laptop centrally, with its microphone unobstructed. All role-played speech should happen near this device; the host controls the room microphone.
+2. Place the listening device centrally, with its microphone unobstructed. Any joined participant can start Ansel from their device; use only one listening device at a time during the demo.
 3. Create the room using the exact text in **Copy-paste room data** below.
 4. Open **Invite** and leave the QR code ready.
 5. Give each judge one private role card. Ask them not to show the card to the other judges.

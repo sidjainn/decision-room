@@ -416,7 +416,6 @@ function JoinRoom({ data, connected }: { data: RoomData; connected: boolean }) {
 
 function ConversationRoom({ data, member }: { data: RoomData; member?: Participant }) {
   const room = data.room!;
-  const { identity } = useSpacetimeDB();
   const replacePoints = useReducer(reducers.replaceDiscussionPoints);
   const appendConversation = useReducer(reducers.appendConversationEvent);
   const setAiState = useReducer(reducers.setAiState);
@@ -429,7 +428,6 @@ function ConversationRoom({ data, member }: { data: RoomData; member?: Participa
   const harnessRef = useRef<ConversationHarness | null>(null);
   const dataRef = useRef(data);
   dataRef.current = data;
-  const isHost = room.facilitatorIdentity.toHexString() === identity?.toHexString();
   const isConversationRoom = room.templateKey === 'conversation';
 
   useEffect(() => {
@@ -601,12 +599,12 @@ function ConversationRoom({ data, member }: { data: RoomData; member?: Participa
           <p>
             {voiceRunning
               ? 'Ansel is in the conversation. No raw audio is stored here.'
-              : isHost
-                ? 'Start Ansel on the room device.'
-                : 'The host controls when Ansel joins the conversation.'}
+              : member
+                ? 'Start Ansel on this device.'
+                : 'Join the room to start Ansel.'}
           </p>
         </div>
-        {isHost && (
+        {member && (
           <button
             className={voiceRunning ? 'quiet-button stop-voice' : 'primary-button'}
             onClick={() => void (voiceRunning ? stopVoice() : startVoice())}
