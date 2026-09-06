@@ -472,6 +472,19 @@ input::placeholder, textarea::placeholder { color: #9aa2b1; }
   box-shadow: var(--shadow);
 }
 .join-qr img { width: 100%; aspect-ratio: 1; }
+.qr-copy-button {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #f6f8fc;
+  color: var(--blue);
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+}
+.qr-copy-button:hover { background: #eef3ff; }
 .join-qr strong { font-size: 15px; }
 .join-qr p { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.45; }
 .join-qr .text-button { justify-self: start; }

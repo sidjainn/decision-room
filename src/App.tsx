@@ -530,6 +530,7 @@ function ConversationRoom({ data, member }: { data: RoomData; member?: Participa
   const setPresence = useReducer(reducers.setPresence);
   const [showQr, setShowQr] = useState(false);
   const [qrSrc, setQrSrc] = useState('');
+  const [copyLinkLabel, setCopyLinkLabel] = useState('Copy link');
   const [voiceRunning, setVoiceRunning] = useState(false);
   const [liveVoiceState, setLiveVoiceState] = useState('ready');
   const [error, setError] = useState('');
@@ -639,6 +640,18 @@ function ConversationRoom({ data, member }: { data: RoomData; member?: Participa
     }
   };
 
+  const copyInviteLink = async () => {
+    const inviteUrl = `${window.location.origin}/join/${room.code}`;
+    try {
+      await navigator.clipboard.writeText(inviteUrl);
+      setCopyLinkLabel('Link copied');
+      window.setTimeout(() => setCopyLinkLabel('Copy link'), 1800);
+    } catch {
+      setCopyLinkLabel('Could not copy');
+      window.setTimeout(() => setCopyLinkLabel('Copy link'), 1800);
+    }
+  };
+
   if (!isConversationRoom) {
     return (
       <main className="state-page">
@@ -676,6 +689,9 @@ function ConversationRoom({ data, member }: { data: RoomData; member?: Participa
           {showQr && (
             <div className="join-qr" role="dialog" aria-label="Join this room">
               {qrSrc ? <img src={qrSrc} alt={`QR code for room ${room.code}`} /> : <span>Preparing QR…</span>}
+              <button className="qr-copy-button" type="button" onClick={() => void copyInviteLink()}>
+                {copyLinkLabel}
+              </button>
               <strong>Join {room.title}</strong>
               <p>Scan to enter the room. No account needed.</p>
               <button className="text-button" onClick={() => setShowQr(false)}>Close</button>
