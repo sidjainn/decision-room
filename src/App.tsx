@@ -4,8 +4,10 @@ import { useReducer, useSpacetimeDB, useTable } from 'spacetimedb/react';
 import {
   ConversationHarness,
   SmallestRealtimeProfile,
+  moveDiscussionPoint,
   type ConversationHarnessDependencies,
   type ReasoningInput,
+  type VoiceRoomState,
 } from './ai';
 import { reducers, tables } from './module_bindings';
 import type {
@@ -591,6 +593,17 @@ function ConversationRoom({ data, member }: { data: RoomData; member?: Participa
     return harness;
   };
 
+  const getVoiceRoomState = (): VoiceRoomState => ({
+    agreements: dataRef.current.points
+      .filter(point => point.itemType === 'agreement' && point.status === 'active')
+      .sort(compareIds)
+      .map(point => point.title),
+    differences: dataRef.current.points
+      .filter(point => point.itemType === 'difference' && point.status === 'active')
+      .sort(compareIds)
+      .map(point => point.title),
+  });
+
   const startVoice = async () => {
     setError('');
     try {
@@ -599,6 +612,18 @@ function ConversationRoom({ data, member }: { data: RoomData; member?: Participa
         topic: room.decisionQuestion,
         reference: room.objective || undefined,
         criteria: data.criteria.map(criterion => criterion.label),
+        getRoomState: getVoiceRoomState,
+        moveDiscussionPoint: async request => {
+          const result = moveDiscussionPoint(getVoiceRoomState(), request);
+          if (result.changed) {
+            await replacePoints({
+              roomId: room.id,
+              agreements: [...result.agreements],
+              differences: [...result.differences],
+            });
+          }
+          return result;
+        },
       });
       const harness = createHarness({
         meetingAudio: profile.meetingAudio,

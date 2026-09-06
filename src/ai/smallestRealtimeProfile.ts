@@ -11,6 +11,11 @@ import type {
   SpeechInputAdapter,
   TranscriptEvent,
 } from './contracts';
+import type {
+  MoveDiscussionPointRequest,
+  MoveDiscussionPointResult,
+  VoiceRoomState,
+} from './roomVoiceTools';
 
 type PulseEvent = {
   type?: string;
@@ -23,6 +28,9 @@ type PulseEvent = {
 type HydraEvent = {
   type?: string;
   delta?: string;
+  arguments?: string;
+  call_id?: string;
+  name?: string;
   message?: string;
   error?: { message?: string } | string;
   response?: { id?: string; status?: string };
@@ -44,6 +52,10 @@ export interface SmallestRoomContext {
   readonly topic: string;
   readonly reference?: string;
   readonly criteria?: ReadonlyArray<string>;
+  readonly getRoomState?: () => VoiceRoomState;
+  readonly moveDiscussionPoint?: (
+    request: MoveDiscussionPointRequest,
+  ) => Promise<MoveDiscussionPointResult>;
 }
 
 /**
@@ -58,10 +70,14 @@ export class SmallestRealtimeProfile {
   readonly realtimeVoice: RealtimeVoiceAdapter;
 
   constructor(context: SmallestRoomContext) {
+    const reasoning = new RoomMapReasoningAdapter();
     this.meetingAudio = new BrowserMeetingAudioAdapter();
     this.speechInput = new SmallestPulseAdapter();
-    this.reasoning = new RoomMapReasoningAdapter();
-    this.realtimeVoice = new SmallestHydraAdapter(context);
+    this.reasoning = reasoning;
+    this.realtimeVoice = new SmallestHydraAdapter(
+      context,
+      state => reasoning.setRoomMap(state),
+    );
   }
 }
 
@@ -223,10 +239,12 @@ class RoomMapReasoningAdapter implements ReasoningAdapter {
   private abort?: AbortController;
   private agreements?: string[];
   private differences?: string[];
+  private stateRevision = 0;
 
   async *run(input: ReasoningInput): AsyncIterable<AgentEvent> {
     const abort = new AbortController();
     this.abort = abort;
+    const runRevision = this.stateRevision;
     const response = await fetch('/api/reasoning/organize', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -255,6 +273,7 @@ class RoomMapReasoningAdapter implements ReasoningAdapter {
     });
     const body = (await response.json()) as RoomMapResponse;
     if (!response.ok) throw new Error(body.error || 'The reasoner could not update the room map.');
+    if (runRevision !== this.stateRevision) return;
 
     this.agreements = stringArray(body.agreements);
     this.differences = stringArray(body.differences);
@@ -274,6 +293,12 @@ class RoomMapReasoningAdapter implements ReasoningAdapter {
     this.abort?.abort();
     this.abort = undefined;
   }
+
+  setRoomMap(state: VoiceRoomState): void {
+    this.stateRevision += 1;
+    this.agreements = [...state.agreements];
+    this.differences = [...state.differences];
+  }
 }
 
 class SmallestHydraAdapter implements RealtimeVoiceAdapter {
@@ -287,8 +312,13 @@ class SmallestHydraAdapter implements RealtimeVoiceAdapter {
   private responseComplete = false;
   private pendingInput = new Uint8Array(0);
   private outputSampleRateHz = 24_000;
+  private activeToolCalls = 0;
+  private toolResponseTimer?: ReturnType<typeof setTimeout>;
 
-  constructor(private readonly room: SmallestRoomContext) {}
+  constructor(
+    private readonly room: SmallestRoomContext,
+    private readonly onRoomMapChanged: (state: VoiceRoomState) => void,
+  ) {}
 
   async start(onEvent: (event: RealtimeVoiceEvent) => void): Promise<void> {
     this.handler = onEvent;
@@ -316,9 +346,9 @@ class SmallestHydraAdapter implements RealtimeVoiceAdapter {
           socket.send(JSON.stringify({
             type: 'session.configure',
             session: {
-              instructions: hydraInstructions(this.room),
+              instructions: hydraInstructions(this.room, this.readRoomState()),
               voice: 'aria',
-              tools: [],
+              tools: hydraTools,
               generate_initial_response: true,
             },
           }));
@@ -380,6 +410,9 @@ class SmallestHydraAdapter implements RealtimeVoiceAdapter {
           this.responseComplete = true;
           this.finishResponseIfDrained();
           break;
+        case 'response.function_call_arguments.done':
+          void this.handleToolCall(providerEvent);
+          break;
         case 'error': {
           const message = hydraErrorMessage(providerEvent);
           rejectReady?.(new Error(message));
@@ -431,12 +464,84 @@ class SmallestHydraAdapter implements RealtimeVoiceAdapter {
     const socket = this.socket;
     this.socket = undefined;
     this.pendingInput = new Uint8Array(0);
+    this.activeToolCalls = 0;
+    if (this.toolResponseTimer !== undefined) clearTimeout(this.toolResponseTimer);
+    this.toolResponseTimer = undefined;
     this.stopPlayback();
     if (socket?.readyState === WebSocket.OPEN) socket.close(1000, 'Room audio stopped');
     else if (socket?.readyState === WebSocket.CONNECTING) socket.close();
     await this.playbackContext?.close();
     this.playbackContext = undefined;
     this.handler = () => undefined;
+  }
+
+  private async handleToolCall(event: HydraEvent): Promise<void> {
+    if (!event.call_id || !event.name) return;
+    this.activeToolCalls += 1;
+    let output: string;
+    try {
+      if (event.name === 'get_room_state') {
+        output = JSON.stringify({
+          ok: true,
+          ...this.readRoomState(),
+        });
+      } else if (event.name === 'move_discussion_point') {
+        if (!this.room.moveDiscussionPoint) {
+          throw new Error('Room-map corrections are not available in this room.');
+        }
+        const request = parseMoveDiscussionPointRequest(event.arguments);
+        const result = await this.room.moveDiscussionPoint(request);
+        this.onRoomMapChanged(result);
+        output = JSON.stringify({
+          ok: true,
+          message: result.changed
+            ? `Moved "${result.movedPoint}" to ${destinationLabel(result.destination)}.`
+            : `"${result.movedPoint}" is already ${destinationLabel(result.destination)}.`,
+          agreements: result.agreements,
+          differences: result.differences,
+        });
+      } else {
+        throw new Error(`Unknown room tool: ${event.name}`);
+      }
+    } catch (error) {
+      output = JSON.stringify({
+        ok: false,
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+
+    const socket = this.socket;
+    if (socket?.readyState === WebSocket.OPEN) {
+      socket.send(JSON.stringify({
+        type: 'conversation.item.create',
+        item: {
+          type: 'function_call_output',
+          call_id: event.call_id,
+          output,
+        },
+      }));
+    }
+    this.activeToolCalls -= 1;
+    if (this.activeToolCalls === 0) this.scheduleToolResponse();
+  }
+
+  private readRoomState(): VoiceRoomState {
+    const state = this.room.getRoomState?.();
+    return {
+      agreements: [...(state?.agreements ?? [])],
+      differences: [...(state?.differences ?? [])],
+    };
+  }
+
+  private scheduleToolResponse(): void {
+    if (this.toolResponseTimer !== undefined) clearTimeout(this.toolResponseTimer);
+    this.toolResponseTimer = setTimeout(() => {
+      this.toolResponseTimer = undefined;
+      if (this.activeToolCalls > 0) return;
+      if (this.socket?.readyState === WebSocket.OPEN) {
+        this.socket.send(JSON.stringify({ type: 'response.create' }));
+      }
+    }, 200);
   }
 
   private async queueAudio(base64Audio: string): Promise<void> {
@@ -510,20 +615,90 @@ class SmallestHydraAdapter implements RealtimeVoiceAdapter {
   }
 }
 
-function hydraInstructions(room: SmallestRoomContext): string {
+function hydraInstructions(room: SmallestRoomContext, state: VoiceRoomState): string {
   const context = [
     `Room: ${room.roomTitle}`,
     `Topic: ${room.topic}`,
     room.reference?.trim() ? `Optional reference or OKR: ${room.reference.trim()}` : '',
     room.criteria?.length ? `Optional criteria: ${room.criteria.join('; ')}` : '',
   ].filter(Boolean).join('\n');
+  const map = `Current room map at session start:\nAligned: ${formatMapSide(state.agreements)}\nStill not aligned: ${formatMapSide(state.differences)}`;
   return `Your name is Ansel. You are the live voice facilitator inside a small group decision room.
 At the very start of the session, before anyone speaks, welcome the group to "${room.roomTitle}" and introduce yourself as Ansel. Say that you are here to help with the decision as their thought partner. Keep this opening warm and concise, then listen.
 Respond promptly and naturally when someone asks you a direct question or clearly addresses the facilitator. If asked whether you can hear the room, confirm plainly.
+When asked what the room has aligned on, what remains open, or for a recap, always call get_room_state first and answer from that fresh result.
+Only when a participant explicitly asks to move or correct a point between aligned and not aligned, call get_room_state, copy the exact point title, then call move_discussion_point. The participant's explicit correction takes precedence over your prior classification. Never move a point based on an implication, and ask for clarification if no exact point is identifiable.
 Use English unless a participant clearly addresses you in another language.
 When people are talking to each other, listen instead of replying to every turn. Intervene only to clarify a real disagreement, surface common ground, or ask one useful question when the group stalls.
-Keep spoken turns concise, usually one or two sentences. Never invent consensus, never make the decision for the group, and do not narrate the live board. Stop immediately when a person begins speaking.
-${context}`;
+Keep spoken turns concise, usually one or two sentences. Never invent consensus, never make the decision for the group, and do not narrate the live board unless someone explicitly requests a recap. Stop immediately when a person begins speaking.
+${context}
+${map}`;
+}
+
+const hydraTools = [
+  {
+    type: 'function',
+    name: 'get_room_state',
+    description: 'Read the fresh aligned and still-not-aligned points before answering a recap or correction request.',
+    parameters: {
+      type: 'object',
+      additionalProperties: false,
+      properties: {},
+      required: [],
+    },
+  },
+  {
+    type: 'function',
+    name: 'move_discussion_point',
+    description: 'Move one existing room-map point only after a participant explicitly requests the correction. First call get_room_state, then copy the exact point title from its result.',
+    parameters: {
+      type: 'object',
+      additionalProperties: false,
+      properties: {
+        point: {
+          type: 'string',
+          description: 'The exact existing point title returned by get_room_state.',
+        },
+        destination: {
+          type: 'string',
+          enum: ['aligned', 'not_aligned'],
+          description: 'The side the participant explicitly requested.',
+        },
+      },
+      required: ['point', 'destination'],
+    },
+  },
+] as const;
+
+function parseMoveDiscussionPointRequest(argumentsJson?: string): MoveDiscussionPointRequest {
+  let value: unknown;
+  try {
+    value = JSON.parse(argumentsJson || '{}') as unknown;
+  } catch {
+    throw new Error('The room-map correction was not valid JSON.');
+  }
+  if (!value || typeof value !== 'object') {
+    throw new Error('The room-map correction is missing its arguments.');
+  }
+  const candidate = value as { point?: unknown; destination?: unknown };
+  if (typeof candidate.point !== 'string' || !candidate.point.trim()) {
+    throw new Error('The room-map correction needs an exact point title.');
+  }
+  if (candidate.destination !== 'aligned' && candidate.destination !== 'not_aligned') {
+    throw new Error('The room-map correction destination must be aligned or not aligned.');
+  }
+  return {
+    point: candidate.point.trim(),
+    destination: candidate.destination,
+  };
+}
+
+function formatMapSide(points: ReadonlyArray<string>): string {
+  return points.length ? points.join(' | ') : 'none recorded';
+}
+
+function destinationLabel(destination: MoveDiscussionPointRequest['destination']): string {
+  return destination === 'aligned' ? 'aligned' : 'still not aligned';
 }
 
 function hydraErrorMessage(event: HydraEvent): string {

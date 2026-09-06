@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "test": "node --experimental-strip-types --test tests/*.test.ts",
     "build": "tsc -b && vite build",
     "build:public": "VITE_SPACETIMEDB_HOST=wss://maincloud.spacetimedb.com VITE_SPACETIMEDB_DB_NAME=ansel-judge-20260905 npm run build",
     "preview": "vite preview",
