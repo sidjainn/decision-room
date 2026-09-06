@@ -236,6 +236,14 @@ class RoomMapReasoningAdapter implements ReasoningAdapter {
         topic: input.room.contract.decisionQuestion,
         reference: input.room.contract.objective,
         criteria: input.room.contract.criteria.map(criterion => criterion.label),
+        recentConversation: input.room.recentConversation
+          .filter(event => event.isFinal && event.text.trim())
+          .slice(-16)
+          .map(event => ({
+            sequence: event.sequence,
+            text: event.text,
+            ...(event.speakerLabel ? { speakerLabel: event.speakerLabel } : {}),
+          })),
         transcript: input.prompt,
         agreements: this.agreements ?? input.room.items
           .filter(item => item.kind === 'agreement')

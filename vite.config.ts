@@ -18,6 +18,11 @@ type RoomMapRequest = {
   topic?: string;
   reference?: string;
   criteria?: string[];
+  recentConversation?: Array<{
+    sequence?: number;
+    text?: string;
+    speakerLabel?: string;
+  }>;
   transcript?: string;
   agreements?: string[];
   differences?: string[];
@@ -36,8 +41,12 @@ type GatewayConfig = {
   reasoningProvider: ReasoningProvider;
 };
 
-const roomMapInstructions =
-  'You maintain a neutral live map of a group conversation. Update the main points of alignment and the important unresolved differences. Merge duplicates, use plain language, never invent consensus, and keep at most four concise points on each side.';
+const roomMapInstructions = `You maintain a neutral live map of a group decision conversation.
+Use recentConversation as chronological context and transcript as the newest utterance. The newest explicit correction, retraction, acceptance, or rejection takes priority over older statements.
+Agreements must be shared ground that participants explicitly accept or clearly treat as settled. A room topic, objective, criterion, constraint, piece of evidence, or one person's unacknowledged proposal is context, not agreement.
+Differences must be active, decision-relevant disagreements, competing positions, or unresolved choices. Missing implementation detail is not a difference unless participants say it blocks the decision.
+When participants explicitly resolve a difference, remove it. When the newest utterance is unrelated small talk, preserve the relevant prior map.
+Merge duplicates, use plain language, never invent consensus, and keep at most four concise points on each side.`;
 
 const roomMapSchema = {
   type: 'object',
