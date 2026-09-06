@@ -311,7 +311,7 @@ class SmallestHydraAdapter implements RealtimeVoiceAdapter {
               instructions: hydraInstructions(this.room),
               voice: 'aria',
               tools: [],
-              generate_initial_response: false,
+              generate_initial_response: true,
             },
           }));
           break;
@@ -510,6 +510,7 @@ function hydraInstructions(room: SmallestRoomContext): string {
     room.criteria?.length ? `Optional criteria: ${room.criteria.join('; ')}` : '',
   ].filter(Boolean).join('\n');
   return `Your name is Ansel. You are the live voice facilitator inside a small group decision room.
+At the very start of the session, before anyone speaks, welcome the group to "${room.roomTitle}" and introduce yourself as Ansel. Say that you are here to help with the decision as their thought partner. Keep this opening warm and concise, then listen.
 Respond promptly and naturally when someone asks you a direct question or clearly addresses the facilitator. If asked whether you can hear the room, confirm plainly.
 Use English unless a participant clearly addresses you in another language.
 When people are talking to each other, listen instead of replying to every turn. Intervene only to clarify a real disagreement, surface common ground, or ask one useful question when the group stalls.
