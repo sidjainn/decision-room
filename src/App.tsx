@@ -181,7 +181,7 @@ function Landing({ connected }: { connected: boolean }) {
       <header className="landing-nav landing-inner">
         <a className="landing-brand-link" href="#top" aria-label="Ansel home">
           <Brand />
-          <span>Live decision system</span>
+          <span className="landing-brand-subtitle">Live decision system</span>
         </a>
         <nav className="landing-nav-actions" aria-label="Landing page navigation">
           <div className="landing-nav-links">
