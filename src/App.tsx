@@ -213,7 +213,7 @@ function Landing({ connected }: { connected: boolean }) {
       <section className="landing-section landing-insight landing-inner" id="why-ansel">
         <p>
           Every leadership team knows the decision that somehow comes back next week.
-          The facts are on the table, but credible leaders want incompatible things—and
+          The facts are on the table, but credible leaders want incompatible things - and
           beneath the reasonable arguments sit defended assumptions, a little ego, and
           the discomfort of being the one who gives something up.{' '}
           <span className="insight-emphasis">
@@ -226,13 +226,13 @@ function Landing({ connected }: { connected: boolean }) {
       <section className="landing-section landing-inner" id="how">
         <div className="how-heading">
           <h2>How it works</h2>
-          <p>Close the trade-off in one meeting—or leave knowing exactly why it cannot close yet.</p>
+          <p>Close the trade-off in one meeting - or leave knowing exactly why it cannot close yet.</p>
         </div>
         <div className="how-steps" aria-label="How Ansel works">
           <article>
             <span>1</span>
             <h3>Bring one stuck decision</h3>
-            <p>Name the question, the goal, the constraints, and who must own the answer.</p>
+            <p>Name the question, the goal, the constraints, and just freely discuss.</p>
           </article>
           <article>
             <span>2</span>
@@ -241,7 +241,7 @@ function Landing({ connected }: { connected: boolean }) {
           </article>
           <article>
             <span>3</span>
-            <h3>Close it—or name what is missing</h3>
+            <h3>Close it - or name what is missing</h3>
             <p>Leave with an approved decision, or a clear non-decision with an owner and next step.</p>
           </article>
         </div>
