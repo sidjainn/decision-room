@@ -383,10 +383,7 @@ function Landing({ connected }: { connected: boolean }) {
         </div>
       </section>
 
-      <footer className="landing-footer landing-inner">
-        <Brand />
-        <span>See the trade-off. Make the call.</span>
-      </footer>
+      <GlobalFooter />
     </main>
   );
 }
@@ -669,10 +666,6 @@ function ConversationRoom({ data, member }: { data: RoomData; member?: Participa
   const differences = data.points
     .filter(point => point.itemType === 'difference' && point.status === 'active')
     .sort(compareIds);
-  const latestConversation = [...data.conversation]
-    .filter(event => event.isFinal)
-    .sort((a, b) => (a.sequence < b.sequence ? 1 : -1))
-    .slice(0, 3);
   const voiceState = voiceRunning ? liveVoiceState : data.aiState?.state ?? 'ready';
 
   return (
@@ -754,19 +747,7 @@ function ConversationRoom({ data, member }: { data: RoomData; member?: Participa
         />
       </section>
 
-      <footer className="room-footer">
-        <div className="latest-heard">
-          <span>Latest heard</span>
-          {latestConversation.length === 0 ? (
-            <p>The live map will begin after the room starts talking.</p>
-          ) : (
-            latestConversation.map(event => (
-              <p key={String(event.id)}>{event.text}</p>
-            ))
-          )}
-        </div>
-        <span className="provider-note">Ansel speaks with Smallest.ai · Shared state by SpacetimeDB</span>
-      </footer>
+      <GlobalFooter />
     </main>
   );
 }
@@ -840,6 +821,18 @@ function Brand({ compact = false }: { compact?: boolean }) {
       <span className="brand-glyph"><i /><i /></span>
       <strong>Ansel</strong>
     </span>
+  );
+}
+
+function GlobalFooter() {
+  return (
+    <footer className="global-footer">
+      <Brand compact />
+      <span className="global-footer-tagline">See the trade-off. Make the call.</span>
+      <span className="global-footer-credit">
+        Created by <a href="https://sidjainn.github.io" target="_blank" rel="noreferrer">sidjainn.github.io</a>
+      </span>
+    </footer>
   );
 }
 

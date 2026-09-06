@@ -421,7 +421,21 @@ input::placeholder, textarea::placeholder { color: #9aa2b1; }
 .landing-final-cta > div > div { max-width: 430px; justify-self: end; }
 .landing-final-cta p { margin: 0 0 25px; color: #dce3ff; font-size: 16px; line-height: 1.6; }
 .light-button { min-height: 48px; padding-inline: 20px; background: white; color: #17213a !important; }
-.landing-footer { display: flex; min-height: 92px; align-items: center; justify-content: space-between; gap: 20px; color: var(--muted); font-size: 12px; }
+.global-footer {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  width: min(calc(100% - 64px), 1440px);
+  min-height: 92px;
+  margin: 0 auto;
+  align-items: center;
+  gap: 20px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.global-footer-tagline { text-align: center; }
+.global-footer-credit { justify-self: end; }
+.global-footer-credit a { color: var(--ink); font-weight: 680; text-decoration: none; }
+.global-footer-credit a:hover { color: var(--blue); }
 
 @keyframes landing-wave {
   0%, 100% { transform: scaleY(0.42); opacity: 0.55; }
@@ -566,13 +580,6 @@ input::placeholder, textarea::placeholder { color: #9aa2b1; }
 .empty-point i { width: 36px; height: 1px; background: #cbd2de; }
 .empty-point p { max-width: 250px; margin: 0; font-size: 12px; line-height: 1.5; }
 
-.room-footer { display: flex; justify-content: space-between; gap: 30px; max-width: 1220px; margin: 0 auto; padding: 24px 0 50px; }
-.latest-heard { max-width: 760px; }
-.latest-heard > span { color: var(--muted); font-size: 9px; font-weight: 700; }
-.latest-heard p { display: inline; margin: 0 12px 0 0; color: #7a8394; font-size: 10px; }
-.latest-heard p + p::before { content: ' · '; margin-right: 12px; color: #bcc2cc; }
-.provider-note { color: #9098a7; font-size: 9px; white-space: nowrap; }
-
 .state-page { display: grid; justify-items: center; align-content: center; gap: 15px; min-height: 100vh; padding: 30px; text-align: center; }
 .state-page h1 { max-width: 600px; margin: 0; font-size: 30px; }
 .state-page p { color: var(--muted); }
@@ -590,7 +597,7 @@ input::placeholder, textarea::placeholder { color: #9aa2b1; }
   .landing-hero { grid-template-columns: 1fr; min-height: auto; }
   .landing-copy { max-width: 760px; padding-top: 55px; }
   .simulated-room { max-width: 760px; }
-  .live-alignment-map, .room-footer { margin-inline: 24px; }
+  .live-alignment-map { margin-inline: 24px; }
 }
 
 @media (max-width: 720px) {
@@ -626,8 +633,6 @@ input::placeholder, textarea::placeholder { color: #9aa2b1; }
   .point-column { min-height: 330px; }
   .live-point { grid-template-columns: 28px 1fr; }
   .live-point small { grid-column: 2; margin: -16px 0 12px; }
-  .room-footer { align-items: flex-start; flex-direction: column; margin-inline: 18px; }
-  .provider-note { white-space: normal; }
 }
 
 @media (max-width: 1120px) {
@@ -698,7 +703,14 @@ input::placeholder, textarea::placeholder { color: #9aa2b1; }
   .landing-recent summary span { display: none; }
   .landing-recent .recent-room-list { grid-template-columns: 1fr; }
   .use-case-primary { min-height: 0; border-radius: 18px; }
-  .landing-footer { align-items: flex-start; flex-direction: column; justify-content: center; }
+  .global-footer {
+    grid-template-columns: 1fr;
+    width: min(calc(100% - 28px), 1440px);
+    padding-block: 24px;
+    justify-items: start;
+  }
+  .global-footer-tagline { text-align: left; }
+  .global-footer-credit { justify-self: start; }
 }
 
 /* Reconciled room experience */
@@ -796,13 +808,6 @@ input::placeholder, textarea::placeholder { color: #9aa2b1; }
 .live-point { border-color: rgba(196,205,221,0.7); }
 .empty-point { min-height: 310px; align-content: center; }
 
-.room-footer {
-  width: min(calc(100% - 64px), 1220px);
-  max-width: none;
-  margin: 0 auto;
-  padding: 24px 2px 50px;
-}
-
 @media (max-width: 720px) {
   .join-room-page { padding: 14px 14px 44px; }
   .join-room-page > .brand-button { margin-left: 0; }
@@ -817,5 +822,4 @@ input::placeholder, textarea::placeholder { color: #9aa2b1; }
   .point-column > header { min-height: auto; padding: 22px 22px 17px; }
   .point-list { padding-inline: 22px; }
   .empty-point { min-height: 220px; padding-block: 60px; }
-  .room-footer { width: calc(100% - 28px); margin-inline: auto; }
 }
